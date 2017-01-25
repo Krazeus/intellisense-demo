@@ -1,0 +1,75 @@
+<script src="/socket.io/socket.io.js"></script>
+<style>
+  .blackboard {
+    height: 500px;
+    width: 500px;
+    float: left;
+    background-color: lightblue;
+  }
+  .result {
+    height: 500px;
+    width: 500px;
+    float: right;
+    background-color: lightgreen;
+    overflow: scroll;
+  }
+
+</style>
+<script>
+    window.addEventListener('DOMContentLoaded', function () {
+
+        var socket = io.connect("http://192.168.56.99:6742");
+        var socket = io("http://192.168.56.99:6742");
+
+        socket.on('news', function (data) {
+            console.log(data);
+            // socket.emit("my othet event", { my: 'data' });
+        });
+
+        socket.on("hints", function (data) {
+            renderData(data);
+        });
+
+        var resultElement = document.getElementsByClassName("results")[0],
+            blackboradElement = document.getElementById("editor"),
+            /**
+            * renderData dibujar los resultados
+            * @private
+            */
+            renderData = function (rawdata) {
+                resultElement.innerHTML = '';
+
+                var results = '';
+                var rawdata = rawdata || [];
+                var length = rawdata.length > 50 ? 50 : rawdata.length;
+                for (var index = 0; index < length; index++) {
+                    var element = rawdata[index];
+                    results += '<li>' + element.v + '</ul>';
+                }
+                resultElement.innerHTML = results;
+            },
+            /**
+             * searchValue buscar coinsidencias en el servidor
+             * @private
+             */
+            searchValue = function (value) {
+                socket.emit("search", { value: value })
+            };
+
+        blackboradElement.onkeyup = function () {
+            var value = this.value;
+            if (value) {
+                //<debug>
+                console.log('search', value);
+                //</debug>
+                searchValue(value);
+            }
+        };
+    }, true);
+</script>
+<!--<div class="blackboard" contenteditable="true"></div>-->
+<textarea id="editor" rows="12" cols="80"></textarea>
+<div class="result">
+    <ol class="results"> </ol>
+</div>
+<div class="total"></div>

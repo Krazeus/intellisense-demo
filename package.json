@@ -1,0 +1,26 @@
+{
+  "name": "intellisense-demo",
+  "version": "1.0.0",
+  "description": "demo",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Krazeus/intellisense-demo.git"
+  },
+  "author": "Miguel Yax <mig_dj@hotmail.com>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Krazeus/intellisense-demo/issues"
+  },
+  "homepage": "https://github.com/Krazeus/intellisense-demo#readme",
+  "dependencies": {
+    "bloodhound-js": "^1.2.1",
+    "express": "^4.14.0",
+    "handlebars": "^4.0.6",
+    "jquery": "^3.1.1",
+    "socket.io": "^1.7.2"
+  }
+}
