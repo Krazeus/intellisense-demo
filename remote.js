@@ -8,7 +8,6 @@ var app = require('express')();
 var server = require('http').Server(app);
 var io = require('socket.io')(server);
 var fs = require('fs');
-var data = JSON.parse(fs.readFileSync('data/jsonFile100.json', 'utf8'));
 var sql = require('mssql');
 
 var Bloodhound = require('bloodhound-js');
@@ -59,9 +58,7 @@ io.on('connection', function (socket) {
                 });
             });
         };
-
-
-    socket.emit('hints', [data[0]]);
+    
     socket.on('other', function (data) {
         console.log(data);
     });
