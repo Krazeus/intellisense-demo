@@ -12,7 +12,7 @@
 
 --- 
 
-# prubeas
+# pruebas
   cambiar el valor en ambos archivos para la ip y el puerto utilizado.
 en consola:  
 
