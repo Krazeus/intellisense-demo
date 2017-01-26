@@ -57,7 +57,11 @@ io.on('connection', function (socket) {
                 });
             });
         };
+<<<<<<< HEAD
 
+=======
+    
+>>>>>>> cbac1eaf67f23fce6db1e3b562b187f7bba5c2f1
     socket.on('other', function (data) {
         console.log(data);
     });
