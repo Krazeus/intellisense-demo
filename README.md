@@ -3,13 +3,14 @@
 # remote.js
   modificar la variable config 
   
+ ``` 
   var config = {
     user: 'user',
     password: 'password',
     server: 'server',
     database: 'database'
 };
-
+```
 --- 
 
 # pruebas
