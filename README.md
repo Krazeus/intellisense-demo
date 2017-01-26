@@ -20,6 +20,12 @@ en consola:
 * node app.js
 * node remote.js
 
+#pd
+  debe obtener las dependencias usando el siguiente comando en consola. 
+  
+  ```
+  npm install
+  ```
 
 
 
