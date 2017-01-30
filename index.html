@@ -1,4 +1,4 @@
-<script src="/socket.io/socket.io.js"></script>
+<script src="http://192.168.56.99:6742/socket.io/socket.io.js"></script>
 <style>
   .blackboard {
     height: 500px;
@@ -18,7 +18,7 @@
 <script>
     window.addEventListener('DOMContentLoaded', function () {
 
-        var socket = io.connect("http://192.168.56.99:6742");
+        // var socket = io.connect("http://192.168.56.99:6742");
         var socket = io("http://192.168.56.99:6742");
         //<debug>
         var sendData = null;
@@ -41,14 +41,16 @@
             * @private
             */
             renderData = function (rawdata) {
+                rawdata = rawdata || [];
                 //<debug>
+
                 var times = new Date().getTime() - sendData;
                 console.log('records:', rawdata.length, 'time (ms):', times);
                 //</debug>
-
-                resultElement.innerHTML = '';
-
                 var results = '';
+
+                // resultElement.innerHTML = '';
+
                 var rawdata = rawdata || [];
                 var length = rawdata.length > 50 ? 50 : rawdata.length;
                 for (var index = 0; index < length; index++) {
@@ -67,6 +69,16 @@
                 //</debug>
 
                 socket.emit("search", { value: value, index: indexElement.value })
+            },
+            /**
+             * @method searchOnWebService call rest web service
+             * @return {Array} rawdata `[]` data response to web service
+             * @private
+             */
+            searchOnWebService = function () {
+                var rawdata = [];
+
+                return rawdata;
             };
 
         blackboradElement.onkeyup = function () {
@@ -86,9 +98,12 @@
     <ol class="results"> </ol>
 </div>
 <div class="total"></div>
+<label for="index">No. Index:</label>
 <select id="index">
   <option value="1">1</option>
   <option value="2">2</option>
   <option value="3">3</option>
   <option value="4">4</option>
 </select>
+
+<button onclick="searchOnWebService" > call rest </button>
