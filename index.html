@@ -40,8 +40,8 @@
             * renderData dibujar los resultados
             * @private
             */
-            renderData = function (rawdata) {
-                rawdata = rawdata || [];
+            renderData = function (data) {
+                rawdata = data.records || [];
                 //<debug>
 
                 var times = new Date().getTime() - sendData;
