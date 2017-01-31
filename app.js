@@ -8,8 +8,9 @@ var app = require('express')();
 var server = require('http').Server(app);
 var io = require('socket.io')(server);
 var fs = require('fs');
-// var data = JSON.parse(fs.readFileSync('data/jsonFile100.json', 'utf8'));
-var data = JSON.parse(fs.readFileSync('data/demoData1302017.json', 'utf8'));
+var data = JSON.parse(fs.readFileSync('data/hints.json', 'utf8'));
+var maxLength = 100;
+// var data = JSON.parse(fs.readFileSync('data/demoData1302017.json', 'utf8'));
 
 var Bloodhound = require('bloodhound-js');
 
@@ -24,9 +25,7 @@ var engineList = new Bloodhound({
 	local: data
 });
 
-//<debug>
-console.log('loadData', data.length);
-//</debug>
+
 app.all('/', function (req, res, next) {
 	res.header("Access-Control-Allow-Origin", "*");
 	res.header("Access-Control-Allow-Headers", "X-Requested-With");
@@ -39,16 +38,13 @@ app.get('/', function (req, res) {
 
 io.on('connection', function (socket) {
 
-	socket.emit('hints', [data[0]]);
 	socket.on('search', function (data) {
-		//<debug>
-		console.log('debug', data);
-		//</debug>
-		engineList.search(data.value, function (param) {
-			var data = (param.length > 500) ? param.slice(0, 500) : param;
 
-			socket.emit('hints', data);
-			console.log('search', data.value, param.length);
+		console.log('search', data.value);
+		engineList.search(data.value, function (param) {
+			var data = (param.length > maxLength) ? param.slice(0, maxLength) : param;
+
+			socket.emit('hints', { records: data, isEqual: false });
 		}, function (param) {
 			console.log('asincrono', arguments);
 		});

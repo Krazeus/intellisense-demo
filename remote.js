@@ -12,8 +12,10 @@ var sql = require('mssql');
 
 var port = 6742;
 var ip = '192.168.56.99';
-
-
+/*
+ * @cfg {String} lastIndex  `''` ultimo indice buscado
+ */
+var lastIndex = '';
 
 
 var normalize = (function () {
@@ -42,14 +44,45 @@ var normalize = (function () {
 
 
 var getIndex = function (text) {
-    // var text = "BAYRÓN-DANIEL&CARRANZA RIVERA"
-    text = text.replace(".", " ").replace("-", " ").replace("_", " ").replace("&", " ").replace("/", " ").replace(",", " ").replace(":", " ").replace(";", " ").replace("%", " ");
-    text = normalize(text);
-    text = text.replace("      ", " ").replace("     ", " ").replace("    ", " ").replace("   ", " ").replace("  ", " ");
-    var matches = text.match(/\b(\w\w\w)/g);
 
-    var array = matches;
-    array = array.sort();
+    /**
+     * reemplaza caracteres especias
+    text = text
+    .replace(".", " ")
+    .replace("-", " ")
+    .replace("_", " ")
+    .replace("&", " ")
+    .replace("/", " ")
+    .replace(",", " ")
+    .replace(":", " ")
+    .replace(";", " ")
+    .replace("%", " ");
+     */
+
+    text.replace(/[.\-\_&\/,:;%]/g, ' ');
+    /**
+     * cambia N espacios en blanco a uno
+    text = text
+    .replace("      ", " ")
+    .replace("     ", " ")
+    .replace("    ", " ")
+    .replace("   ", " ")
+    .replace("  ", " ");
+     */
+
+    text.replace(/\s\s+/g, ' ');
+
+    text = normalize(text);
+
+    /**
+     * selecciona 3 caracteres
+     */
+    var matches = text.match(/\b(\w{3})/g);
+
+    var array = matches || [];
+    if (array.length > 1) {
+        array = array.sort();
+    }
 
     var letters = array;
     var combi = [];
@@ -66,7 +99,7 @@ var getIndex = function (text) {
         temp = temp.substring(0, temp.length - 1);
         if (temp !== "") {
             combi.push({
-                value: temp,
+                value: temp.toUpperCase(),
                 index: letters.length
             });
         }
@@ -84,7 +117,7 @@ var Bloodhound = require('bloodhound-js');
 
 server.listen(port);
 
-var config = {
+ var config = {
     user: 'user',
     password: 'password',
     server: 'server',
@@ -122,9 +155,10 @@ io.on('connection', function (socket) {
                         console.log('error', error);
                         //</debug>
 
-
                     }
-                    socket.emit('hints', recordset);
+                    socket.emit('hints', {
+                        records: recordset
+                    });
                 });
             });
         };
@@ -139,19 +173,31 @@ io.on('connection', function (socket) {
             if (data.value.length > 2) {
                 var indexList = getIndex(data.value);
                 // var lastItemIndex = indexList[indexList.length - 1];
-                data = indexList[indexList.length - 1];
+                data = indexList[indexList.length - 1] || { value: '', index: 0 };
                 //<debug>
                 console.log('searching', data);
                 //</debug>
 
 
-                var validLength = (3 * data.index) + (data.index - 1);
-                if (data.value.length === validLength) {
+                // var validLength = (3 * data.index) + (data.index - 1);
+                // if (data.value.length === validLength) {
+                if (lastIndex !== data.value) {
                     // var query = "SELECT d.UUID_DICTIONARY as i, d.expression as e, d.dictionary_translation as v  FROM MPDV_DICTIONARY_ES d  WHERE d.UUID_DICTIONARY IN (SELECT DISTINCT UUIDDICTIONARY FROM MPD_IDX03ES_DICTIONARY WHERE COMBINED_KEY = 'FIE_LAS_TRX')";
+                    lastIndex = data.value;
                     var query = "SELECT d.UUID_DICTIONARY as i, d.expression as e, d.dictionary_translation as v  FROM MPDV_DICTIONARY_ES d  WHERE d.UUID_DICTIONARY IN (SELECT DISTINCT UUIDDICTIONARY FROM MPD_IDX0" + data.index + "ES_DICTIONARY WHERE COMBINED_KEY = '" + data.value + "')";
                     sendQuery(config, query);
+                } else {
+                    /**
+                     * misma consulta de indice
+                     */
+                    socket.emit('hints', {
+                        records: [],
+                        keyIndex: lastIndex,
+                        isEqual: true
+                    });
                 }
             }
+            // }
         }
     });
 });
