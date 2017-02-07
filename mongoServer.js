@@ -144,6 +144,7 @@ io.on('connection', function (socket) {
                     $caseSensitive: false
                 }
             }, {
+                    v: 1,
                     t: 1,
                     e: 1,
                     i: 1,

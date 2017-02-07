@@ -56,7 +56,7 @@
                 var length = rawdata.length > 50 ? 50 : rawdata.length;
                 for (var index = 0; index < length; index++) {
                     var element = rawdata[index];
-                    var final = highlighter(element.t, lastValue);
+                    var final = highlighter(element.v, lastValue);
                     results += '<li>' + final + '</ul>';
                 }
                 resultElement.innerHTML = results;
