@@ -10,7 +10,6 @@ var server = require('http').Server(app);
 var io = require('socket.io')(server);
 var fs = require('fs');
 var data = JSON.parse(fs.readFileSync('data/nuevo.json', 'utf8'));
-var dataClean = JSON.parse(fs.readFileSync('data/nuevo.json', 'utf8'));
 var categoryList = JSON.parse(fs.readFileSync('data/categories.json', 'utf8'));
 var dataTypeList = JSON.parse(fs.readFileSync('data/datatype.json', 'utf8'));
 // var data = JSON.parse(fs.readFileSync('data/hints.json', 'utf8'));

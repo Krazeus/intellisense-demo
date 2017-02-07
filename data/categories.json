@@ -1,0 +1,458 @@
+[
+  {
+    "NAME": "key",
+    "INTERNALCODE": "43",
+    "VALUE": "Llaves",
+    "ICONCLS": "mpl-key"
+  },
+  {
+    "NAME": "yearlyPreviousCounter",
+    "INTERNALCODE": "47",
+    "VALUE": "Anual",
+    "ICONCLS": "mpl-yearlyPreviousCounter"
+  },
+  {
+    "NAME": "lastValueRelationship",
+    "INTERNALCODE": "88",
+    "VALUE": "Ultimo Valor de la Transacción",
+    "ICONCLS": "mpl-lastValueRelationship"
+  },
+  {
+    "NAME": "generalValuesAccumulatorRelationship",
+    "INTERNALCODE": "35",
+    "VALUE": "Contador de Acumulación",
+    "ICONCLS": "mpl-generalValuesAccumulatorRelationship"
+  },
+  {
+    "NAME": "previousCounterAccumulatorRelationship",
+    "INTERNALCODE": "64",
+    "VALUE": "Higher",
+    "ICONCLS": "mpl-previousCounterAccumulatorRelationship"
+  },
+  {
+    "NAME": "lowerGeneralValues",
+    "INTERNALCODE": "87",
+    "VALUE": "VALOR MAS BAJO",
+    "ICONCLS": "mpl-lowerGeneralValues"
+  },
+  {
+    "NAME": "score",
+    "INTERNALCODE": "23",
+    "VALUE": "Score",
+    "ICONCLS": "mpl-score"
+  },
+  {
+    "NAME": "accumulatorsRelationship",
+    "INTERNALCODE": "39",
+    "VALUE": "Accumuladores",
+    "ICONCLS": "mpl-accumulatorsRelationship"
+  },
+  {
+    "NAME": "counterAccumultorKeyAverage",
+    "INTERNALCODE": "74",
+    "VALUE": "Contador",
+    "ICONCLS": "mpl-counterAccumultorKeyAverage"
+  },
+  {
+    "NAME": "sequenceTrack",
+    "INTERNALCODE": "98",
+    "VALUE": "Pistas de secuencia",
+    "ICONCLS": "mpl-sequenceTrack"
+  },
+  {
+    "NAME": "allCategoryField",
+    "INTERNALCODE": "69",
+    "VALUE": "Todas las catégorias de campo",
+    "ICONCLS": "mpl-allCategoryField"
+  },
+  {
+    "NAME": "previousTotalKeyAverage",
+    "INTERNALCODE": "90",
+    "VALUE": "Acumulador Previo",
+    "ICONCLS": "mpl-previousTotalKeyAverage"
+  },
+  {
+    "NAME": "keyAverage",
+    "INTERNALCODE": "33",
+    "VALUE": "Llaves con Promedio",
+    "ICONCLS": "mpl-keyAverage"
+  },
+  {
+    "NAME": "dailyCounter",
+    "INTERNALCODE": "53",
+    "VALUE": "Diario",
+    "ICONCLS": "mpl-dailyCounter"
+  },
+  {
+    "NAME": "dictionary",
+    "INTERNALCODE": "42",
+    "VALUE": "Diccionario",
+    "ICONCLS": "mpl-dictionary"
+  },
+  {
+    "NAME": "generalValuesAccumulatorKeyAverage",
+    "INTERNALCODE": "36",
+    "VALUE": "Contador de Acumulación",
+    "ICONCLS": "mpl-generalValuesAccumulatorKeyAverage"
+  },
+  {
+    "NAME": "alphanumericField",
+    "INTERNALCODE": "27",
+    "VALUE": "AlfaNumerico",
+    "ICONCLS": "mpl-alphanumericField"
+  },
+  {
+    "NAME": "numericInvestigationField",
+    "INTERNALCODE": "93",
+    "VALUE": "Numerico",
+    "ICONCLS": "mpl-numericInvestigationField"
+  },
+  {
+    "NAME": "sequence",
+    "INTERNALCODE": "82",
+    "VALUE": "Secuencias",
+    "ICONCLS": "mpl-sequence"
+  },
+  {
+    "NAME": "counterAccumultor",
+    "INTERNALCODE": "75",
+    "VALUE": "Contador",
+    "ICONCLS": "mpl-counterAccumultor"
+  },
+  {
+    "NAME": "lastTime",
+    "INTERNALCODE": "67",
+    "VALUE": "Ultima Vez",
+    "ICONCLS": "mpl-lastTime"
+  },
+  {
+    "NAME": "higherAccumulationTotal",
+    "INTERNALCODE": "84",
+    "VALUE": "Higher.Transcurrido",
+    "ICONCLS": "mpl-higherAccumulationTotal"
+  },
+  {
+    "NAME": "valueListing",
+    "INTERNALCODE": "72",
+    "VALUE": "Listado de Valores",
+    "ICONCLS": "mpl-valueListing"
+  },
+  {
+    "NAME": "lowerAccumulationTotal",
+    "INTERNALCODE": "86",
+    "VALUE": "Lower.Transcurrido",
+    "ICONCLS": "mpl-lowerAccumulationTotal"
+  },
+  {
+    "NAME": "alphanumericGlobal",
+    "INTERNALCODE": "28",
+    "VALUE": "AlfaNumerico",
+    "ICONCLS": "mpl-alphanumericGlobal"
+  },
+  {
+    "NAME": "previousCounterAccumulatorKeyAverage",
+    "INTERNALCODE": "65",
+    "VALUE": "Higher",
+    "ICONCLS": "mpl-previousCounterAccumulatorKeyAverage"
+  },
+  {
+    "NAME": "monthlyPreviousTotal",
+    "INTERNALCODE": "57",
+    "VALUE": "Mensual",
+    "ICONCLS": "mpl-monthlyPreviousTotal"
+  },
+  {
+    "NAME": "numericField",
+    "INTERNALCODE": "94",
+    "VALUE": "Numerico",
+    "ICONCLS": "mpl-numericField"
+  },
+  {
+    "NAME": "totalAccumulationkeyAverage",
+    "INTERNALCODE": "102",
+    "VALUE": "Acumulación total",
+    "ICONCLS": "mpl-totalAccumulationkeyAverage"
+  },
+  {
+    "NAME": "resultField",
+    "INTERNALCODE": "51",
+    "VALUE": "Campos de Resultado",
+    "ICONCLS": "mpl-resultField"
+  },
+  {
+    "NAME": "lastValue",
+    "INTERNALCODE": "89",
+    "VALUE": "Ultimo Valor de la Transacción",
+    "ICONCLS": "mpl-lastValue"
+  },
+  {
+    "NAME": "allCategoryGlobal",
+    "INTERNALCODE": "71",
+    "VALUE": "Todas las categorias de globales",
+    "ICONCLS": "mpl-allCategoryGlobal"
+  },
+  {
+    "NAME": "yearlyPreviousTotal",
+    "INTERNALCODE": "48",
+    "VALUE": "Anual",
+    "ICONCLS": "mpl-yearlyPreviousTotal"
+  },
+  {
+    "NAME": "routine",
+    "INTERNALCODE": "83",
+    "VALUE": "Rutinas Especiales",
+    "ICONCLS": "mpl-routine"
+  },
+  {
+    "NAME": "totalAccumulationRelationship",
+    "INTERNALCODE": "103",
+    "VALUE": "Acumulación total",
+    "ICONCLS": "mpl-totalAccumulationRelationship"
+  },
+  {
+    "NAME": "previousCounterAccumulator",
+    "INTERNALCODE": "66",
+    "VALUE": "Higher",
+    "ICONCLS": "mpl-previousCounterAccumulator"
+  },
+  {
+    "NAME": "previousTotal",
+    "INTERNALCODE": "91",
+    "VALUE": "Acumulador Previo",
+    "ICONCLS": "mpl-previousTotal"
+  },
+  {
+    "NAME": "key",
+    "INTERNALCODE": "81",
+    "VALUE": "llave",
+    "ICONCLS": "mpl-key"
+  },
+  {
+    "NAME": "accumulators",
+    "INTERNALCODE": "40",
+    "VALUE": "Accumuladores",
+    "ICONCLS": "mpl-accumulators"
+  },
+  {
+    "NAME": "function",
+    "INTERNALCODE": "85",
+    "VALUE": "Funciones",
+    "ICONCLS": "mpl-function"
+  },
+  {
+    "NAME": "lastTimeRelationship",
+    "INTERNALCODE": "68",
+    "VALUE": "Ultima Vez",
+    "ICONCLS": "mpl-lastTimeRelationship"
+  },
+  {
+    "NAME": "counterAccumultorRelationship",
+    "INTERNALCODE": "76",
+    "VALUE": "Contador",
+    "ICONCLS": "mpl-counterAccumultorRelationship"
+  },
+  {
+    "NAME": "allCategory",
+    "INTERNALCODE": "45",
+    "VALUE": "Todas las Categorias",
+    "ICONCLS": "mpl-allCategory"
+  },
+  {
+    "NAME": "accumulatorAccumulationTotal",
+    "INTERNALCODE": "38",
+    "VALUE": "Total.Transcurrido",
+    "ICONCLS": "mpl-accumulatorAccumulationTotal"
+  },
+  {
+    "NAME": "yearlyTotal",
+    "INTERNALCODE": "49",
+    "VALUE": "Anual",
+    "ICONCLS": "mpl-yearlyTotal"
+  },
+  {
+    "NAME": "numericGlobalListing",
+    "INTERNALCODE": "95",
+    "VALUE": "Numerico",
+    "ICONCLS": "mpl-numericGlobalListing"
+  },
+  {
+    "NAME": "dailyPreviousCounter",
+    "INTERNALCODE": "54",
+    "VALUE": "Diario",
+    "ICONCLS": "mpl-dailyPreviousCounter"
+  },
+  {
+    "NAME": "alphanumericValueListing",
+    "INTERNALCODE": "29",
+    "VALUE": "AlfaNumerico",
+    "ICONCLS": "mpl-alphanumericValueListing"
+  },
+  {
+    "NAME": "counterAccumulationTotal",
+    "INTERNALCODE": "34",
+    "VALUE": "Contador.Transcurrido",
+    "ICONCLS": "mpl-counterAccumulationTotal"
+  },
+  {
+    "NAME": "totalAccumulation",
+    "INTERNALCODE": "104",
+    "VALUE": "Acumulación total",
+    "ICONCLS": "mpl-totalAccumulation"
+  },
+  {
+    "NAME": "factorRelative",
+    "INTERNALCODE": "46",
+    "VALUE": "Factor",
+    "ICONCLS": "mpl-factorRelative"
+  },
+  {
+    "NAME": "investigation",
+    "INTERNALCODE": "26",
+    "VALUE": "Campos de Investigación",
+    "ICONCLS": "mpl-investigation"
+  },
+  {
+    "NAME": "monthlyTotal",
+    "INTERNALCODE": "58",
+    "VALUE": "Mensual",
+    "ICONCLS": "mpl-monthlyTotal"
+  },
+  {
+    "NAME": "alphanumericInvestigationField",
+    "INTERNALCODE": "30",
+    "VALUE": "AlfaNumerico",
+    "ICONCLS": "mpl-alphanumericInvestigationField"
+  },
+  {
+    "NAME": "global",
+    "INTERNALCODE": "73",
+    "VALUE": "Valores de Globales",
+    "ICONCLS": "mpl-global"
+  },
+  {
+    "NAME": "dailyTotal",
+    "INTERNALCODE": "55",
+    "VALUE": "Diario",
+    "ICONCLS": "mpl-dailyTotal"
+  },
+  {
+    "NAME": "numericResult",
+    "INTERNALCODE": "96",
+    "VALUE": "Numerico",
+    "ICONCLS": "mpl-numericResult"
+  },
+  {
+    "NAME": "dynamictable",
+    "INTERNALCODE": "78",
+    "VALUE": "Tabla Dinámica",
+    "ICONCLS": "mpl-dynamictable"
+  },
+  {
+    "NAME": "alphaNumericResult",
+    "INTERNALCODE": "31",
+    "VALUE": "AlfaNumerico",
+    "ICONCLS": "mpl-alphaNumericResult"
+  },
+  {
+    "NAME": "numericGlobalValue",
+    "INTERNALCODE": "97",
+    "VALUE": "Numerico",
+    "ICONCLS": "mpl-numericGlobalValue"
+  },
+  {
+    "NAME": "accumulatorsKeyAverage",
+    "INTERNALCODE": "41",
+    "VALUE": "Accumuladores",
+    "ICONCLS": "mpl-accumulatorsKeyAverage"
+  },
+  {
+    "NAME": "relation",
+    "INTERNALCODE": "99",
+    "VALUE": "Relación",
+    "ICONCLS": "mpl-relation"
+  },
+  {
+    "NAME": "relative",
+    "INTERNALCODE": "44",
+    "VALUE": "Relativo",
+    "ICONCLS": "mpl-relative"
+  },
+  {
+    "NAME": "monthlyPreviousCounter",
+    "INTERNALCODE": "59",
+    "VALUE": "Mensual",
+    "ICONCLS": "mpl-monthlyPreviousCounter"
+  },
+  {
+    "NAME": "field",
+    "INTERNALCODE": "52",
+    "VALUE": "Campos",
+    "ICONCLS": "mpl-field"
+  },
+  {
+    "NAME": "alphaNumericGlobalValue",
+    "INTERNALCODE": "32",
+    "VALUE": "Global Alfanumérica",
+    "ICONCLS": "mpl-alphaNumericGlobalValue"
+  },
+  {
+    "NAME": "generalValuesAccumulator",
+    "INTERNALCODE": "37",
+    "VALUE": "Contador de Acumulación",
+    "ICONCLS": "mpl-generalValuesAccumulator"
+  },
+  {
+    "NAME": "condition",
+    "INTERNALCODE": "106",
+    "VALUE": "Condición",
+    "ICONCLS": "mpl-condition"
+  },
+  {
+    "NAME": "monthlyCounter",
+    "INTERNALCODE": "60",
+    "VALUE": "Mensual",
+    "ICONCLS": "mpl-monthlyCounter"
+  },
+  {
+    "NAME": "absolute",
+    "INTERNALCODE": "110",
+    "VALUE": "Absoluto",
+    "ICONCLS": "mpl-absolute"
+  },
+  {
+    "NAME": "higherGeneralValues",
+    "INTERNALCODE": "63",
+    "VALUE": "Mayor",
+    "ICONCLS": "mpl-higherGeneralValues"
+  },
+  {
+    "NAME": "dailyPreviousTotal",
+    "INTERNALCODE": "56",
+    "VALUE": "Diario",
+    "ICONCLS": "mpl-dailyPreviousTotal"
+  },
+  {
+    "NAME": "previousTotalRelationship",
+    "INTERNALCODE": "92",
+    "VALUE": "Acumulador Previo",
+    "ICONCLS": "mpl-previousTotalRelationship"
+  },
+  {
+    "NAME": "yearlyCounter",
+    "INTERNALCODE": "50",
+    "VALUE": "Anual",
+    "ICONCLS": "mpl-yearlyCounter"
+  },
+  {
+    "NAME": "sequence",
+    "INTERNALCODE": "62",
+    "VALUE": "secuencia",
+    "ICONCLS": "mpl-sequence"
+  },
+  {
+    "NAME": "factorAbsolute",
+    "INTERNALCODE": "70",
+    "VALUE": "Factor",
+    "ICONCLS": "mpl-factorAbsolute"
+  }
+]

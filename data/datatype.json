@@ -1,0 +1,14 @@
+[
+  {
+    "NAME": "numeric",
+    "INTERNALCODE": "2",
+    "VALUE": "Numerico",
+    "ICONCLS": "mpl-numeric"
+  },
+  {
+    "NAME": "alphanumeric",
+    "INTERNALCODE": "1",
+    "VALUE": "AlfaNumerico",
+    "ICONCLS": "mpl-alphanumeric"
+  }
+]
