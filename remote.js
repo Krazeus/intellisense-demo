@@ -121,10 +121,10 @@ var Bloodhound = require('bloodhound-js');
 server.listen(port);
 
 var config = {
-    user: 'sa',
-    password: '1234',
-    server: '192.168.14.73\\narrative',
-    database: 'MP_Config'
+    user: 'user',
+    password: 'password',
+    server: 'server',
+    database: 'database'
 };
 
 
