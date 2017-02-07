@@ -1,4 +1,4 @@
-<script src="http://192.168.56.99:6742/socket.io/socket.io.js"></script>
+<script src="http://192.168.120.230:6742/socket.io/socket.io.js"></script>
 <style>
   .blackboard {
     height: 500px;
@@ -18,8 +18,8 @@
 <script>
     window.addEventListener('DOMContentLoaded', function () {
 
-        // var socket = io.connect("http://192.168.56.99:6742");
-        var socket = io("http://192.168.56.99:6742");
+        // var socket = io.connect("http://192.168.120.230:6742");
+        var socket = io("http://192.168.120.230:6742");
         //<debug>
         var sendData = null;
         //</debug>
@@ -55,7 +55,7 @@
                 var length = rawdata.length > 50 ? 50 : rawdata.length;
                 for (var index = 0; index < length; index++) {
                     var element = rawdata[index];
-                    results += '<li>' + element.v + '</ul>';
+                    results += '<li>' + element.t + '</ul>';
                 }
                 resultElement.innerHTML = results;
             },
