@@ -8,8 +8,9 @@
       "type": "node",
       "request": "launch",
       "name": "Iniciar programa",
-      // "program": "${workspaceRoot}\\app.js",
-      "program": "${workspaceRoot}\\remote.js",
+      "program": "${workspaceRoot}\\mongoServer.js",
+      //"program": "${workspaceRoot}\\app.js",
+      //"program": "${workspaceRoot}\\mongo.js",
       "cwd": "${workspaceRoot}"
     },
     {
