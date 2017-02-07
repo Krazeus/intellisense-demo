@@ -10,6 +10,9 @@ var io = require('socket.io')(server);
 var fs = require('fs');
 var sql = require('mssql');
 
+var categoryList = JSON.parse(fs.readFileSync('data/categories.json', 'utf8'));
+var dataTypeList = JSON.parse(fs.readFileSync('data/datatype.json', 'utf8'));
+
 var port = 6742;
 var ip = '192.168.56.99';
 /*
@@ -117,11 +120,11 @@ var Bloodhound = require('bloodhound-js');
 
 server.listen(port);
 
- var config = {
-    user: 'user',
-    password: 'password',
-    server: 'server',
-    database: 'database'
+var config = {
+    user: 'sa',
+    password: '1234',
+    server: '192.168.14.73\\narrative',
+    database: 'MP_Config'
 };
 
 
@@ -131,7 +134,8 @@ app.get('/', function (req, res) {
 
 io.on('connection', function (socket) {
 
-
+    socket.emit('categories', categoryList);
+    socket.emit('datatype', dataTypeList);
     var
         /**
          * sendQuery ejecuta una consulta en base de dados con una configuracion y una instruccion sql
@@ -184,7 +188,8 @@ io.on('connection', function (socket) {
                 if (lastIndex !== data.value) {
                     // var query = "SELECT d.UUID_DICTIONARY as i, d.expression as e, d.dictionary_translation as v  FROM MPDV_DICTIONARY_ES d  WHERE d.UUID_DICTIONARY IN (SELECT DISTINCT UUIDDICTIONARY FROM MPD_IDX03ES_DICTIONARY WHERE COMBINED_KEY = 'FIE_LAS_TRX')";
                     lastIndex = data.value;
-                    var query = "SELECT d.UUID_DICTIONARY as i, d.expression as e, d.dictionary_translation as v  FROM MPDV_DICTIONARY_ES d  WHERE d.UUID_DICTIONARY IN (SELECT DISTINCT UUIDDICTIONARY FROM MPD_IDX0" + data.index + "ES_DICTIONARY WHERE COMBINED_KEY = '" + data.value + "')";
+                    var query = "SELECT dic.UUID_DICTIONARY as i, dic.expression as e, dic.dictionary_translation as v,  dic.INTERNALCODEDATATYPE AS d, dic.INTERNALCODECATEGORY AS c FROM MPDV_DICTIONARY_ES dic  WHERE dic.UUID_DICTIONARY IN (SELECT DISTINCT UUIDDICTIONARY FROM MPD_IDX0" + data.index + "ES_DICTIONARY WHERE COMBINED_KEY = '" + data.value + "')";
+
                     sendQuery(config, query);
                 } else {
                     /**
