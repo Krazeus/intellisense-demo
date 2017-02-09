@@ -8,6 +8,9 @@ var app = require('express')();
 var server = require('http').Server(app);
 var io = require('socket.io')(server);
 
+var fs = require('fs');
+var categoryList = JSON.parse(fs.readFileSync('data/categories.json', 'utf8'));
+
 //word not allowed
 var MongoClient = require('mongodb').MongoClient,
     assert = require('assert');
@@ -31,6 +34,9 @@ var normalize = (function () {
     }
 
     return function (str) {
+        str = str.toUpperCase();
+        str.replace(/[.\-\_&\/,:;%]/g, ' ');
+        str.replace(/\s\s+/g, ' ');
         var ret = [];
         for (var i = 0, j = str.length; i < j; i++) {
             var c = str.charAt(i);
@@ -44,34 +50,12 @@ var normalize = (function () {
 })();
 
 
-var data = [];
+//var data = [];
+
 
 var getIndex = function (text) {
 
-    /**
-     * reemplaza caracteres especias
-    text = text
-    .replace(".", " ")
-    .replace("-", " ")
-    .replace("_", " ")
-    .replace("&", " ")
-    .replace("/", " ")
-    .replace(",", " ")
-    .replace(":", " ")
-    .replace(";", " ")
-    .replace("%", " ");
-     */
-
     text.replace(/[.\-\_&\/,:;%]/g, ' ');
-    /**
-     * cambia N espacios en blanco a uno
-    text = text
-    .replace("      ", " ")
-    .replace("     ", " ")
-    .replace("    ", " ")
-    .replace("   ", " ")
-    .replace("  ", " ");
-     */
 
     text.replace(/\s\s+/g, ' ');
 
@@ -80,8 +64,8 @@ var getIndex = function (text) {
     /**
      * selecciona 3 caracteres
      */
-    var matches = text.match(/\b(\w{3})/g);
-
+    //var matches = text.match(/\b(\w{3})/g);
+    var matches = text.match(/\b(\w)/g);
     var array = matches || [];
     if (array.length > 1) {
         array = array.sort();
@@ -135,9 +119,20 @@ io.on('connection', function (socket) {
          * @private
          */
         sendQuery = function (text) {
-            //var data = [];            
-            var collection = mongoContext.collection('dictionary')
 
+            text = normalize(text);
+            //quitar articulaciones
+
+            //buscar categorias
+//            var words = text.toArray();
+//            var cat = "";
+//            words.array.forEach(function(element) {
+//                cat = categoryList.find(element.value);
+//                if(cat != null)
+//                    return
+//            }, this);
+
+            var collection = mongoContext.collection('dictionary')
             var resultList = collection.find({
                 $text: {
                     $search: text,
@@ -156,7 +151,7 @@ io.on('connection', function (socket) {
                     score: {
                         $meta: "textScore"
                     }
-                }).limit(500);
+                }).limit(50);
 
             var resultData = [];
             var sortedList = resultList.toArray(function (err, data) {

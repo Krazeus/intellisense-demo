@@ -56,8 +56,10 @@
                 var length = rawdata.length > 50 ? 50 : rawdata.length;
                 for (var index = 0; index < length; index++) {
                     var element = rawdata[index];
-                    var final = highlighter(element.v, lastValue);
-                    results += '<li>' + final + '</ul>';
+                    //var final = highlighter(element.v, lastValue);
+                    var final = wrapInTag(element.v, lastValue);
+                    wrapInTag
+                    results += '<li>' + final + '</li>';
                 }
                 resultElement.innerHTML = results;
             },
@@ -169,9 +171,21 @@
         //         return caseSensitive ? new RegExp(regexStr) : new RegExp(regexStr, "i");
         //     }
         // } (window.document);
+
+        wrapInTag = function (item, text) {
+
+            var tag = 'strong',
+                words = text.split(" ") || [],
+                regex = RegExp(words.join('|'), 'gi'),
+                replacement = '<' + tag + '>$&</' + tag + '>';
+
+            return item.replace(regex, replacement);
+        };
+
         highlighter = function (item, query) {
             query = query || this.query;
             query = query.replace(/[\-\[\]{}()*+?.,\\\^$|#\s]/g, '\\$&');
+            
             return item.replace(new RegExp('(' + query + ')', 'ig'), function ($1, match) {
                 return '<strong>' + match + '</strong>'
             })
