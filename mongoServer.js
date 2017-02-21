@@ -1,4 +1,4 @@
-/**
+/*!
  * @author miguel yax <mig_dj@hotmail.com>
  * date 1/25/2017
  * intellisense remote with node js
@@ -17,7 +17,7 @@ var MongoClient = require('mongodb').MongoClient,
 
 
 var port = 6742;
-var ip = '192.168.120.230';
+var ip = '192.168.56.99';
 /*
  * @cfg {String} lastIndex  `''` ultimo indice buscado
  */
@@ -101,7 +101,7 @@ app.get('/', function (req, res) {
 });
 
 io.on('connection', function (socket) {
-    // Connection URL 
+    // Connection URL
     // var url = 'mongodb://192.168.120.230:27017/config';
     var mongoContext = null;
     MongoClient.connect('mongodb://192.168.120.230:27017/config', function (err, db) {
@@ -115,24 +115,16 @@ io.on('connection', function (socket) {
          * sendQuery ejecuta una consulta en base de dados con una configuracion y una instruccion sql
          * @param {Object} credential  `{ user: '', password: '', server: '', database:'' }` credenciales de autentificacion
          * @param {String} query  `''` instruccion sql a ejecutar
+         * @param {function} callback  `default` description
          * @return {Array} data  `[]`  solved data
          * @private
          */
-        sendQuery = function (text) {
-
-            text = normalize(text);
+        sendQuery = function (text, callback) {
             //quitar articulaciones
-
             //buscar categorias
-//            var words = text.toArray();
-//            var cat = "";
-//            words.array.forEach(function(element) {
-//                cat = categoryList.find(element.value);
-//                if(cat != null)
-//                    return
-//            }, this);
+            text = normalize(text);
 
-            var collection = mongoContext.collection('dictionary')
+            var collection = mongoContext.collection('dictionary');
             var resultList = collection.find({
                 $text: {
                     $search: text,
@@ -156,18 +148,8 @@ io.on('connection', function (socket) {
             var resultData = [];
             var sortedList = resultList.toArray(function (err, data) {
                 assert.equal(err, null);
-                //<debug>
-                console.log('searched: ', text, 'results: ', data.length);
-                //</debug>
-
-                socket.emit('hints', {
-                    records: data,
-                    keyIndex: lastIndex,
-                    isEqual: true
-                });
+                callback(data);
             });
-
-            // return resultData || [];
         };
 
     /**
@@ -181,13 +163,13 @@ io.on('connection', function (socket) {
     });
     socket.on('search', function (data) {
         if (data.value) {
-            var search = sendQuery(data.value);
-
-            // socket.emit('hints', {
-            //     records: search,
-            //     keyIndex: lastIndex,
-            //     isEqual: true
-            // });
+            var search = sendQuery(data.value, function (data) {
+                socket.emit('hints', {
+                    records: data,
+                    keyIndex: lastIndex,
+                    isEqual: true
+                });
+            });
         }
     });
 });
