@@ -148,7 +148,10 @@ io.on('connection', function (socket) {
             var resultData = [];
             var sortedList = resultList.toArray(function (err, data) {
                 assert.equal(err, null);
-                callback(data);
+                if (err) {
+                    return callback(err);
+                }
+                callback(null, data);
             });
         };
 
@@ -163,9 +166,9 @@ io.on('connection', function (socket) {
     });
     socket.on('search', function (data) {
         if (data.value) {
-            var search = sendQuery(data.value, function (data) {
+            var search = sendQuery(data.value, function (err, data) {
                 socket.emit('hints', {
-                    records: data,
+                    records: (err) ? [] : data,
                     keyIndex: lastIndex,
                     isEqual: true
                 });
