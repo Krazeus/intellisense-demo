@@ -57,8 +57,8 @@
                 for (var index = 0; index < length; index++) {
                     var element = rawdata[index];
                     //var final = highlighter(element.v, lastValue);
-                    var final = wrapInTag(element.v, lastValue);
-                    wrapInTag
+                    var final = wrapInTag(element.VALUE, lastValue);
+                    //wrapInTag
                     results += '<li>' + final + '</li>';
                 }
                 resultElement.innerHTML = results;
@@ -84,96 +84,9 @@
 
                 return rawdata;
             };
-        // var
-        //     clone = function (array) {
-        //         return slice.call(array);
-        //     },
-        //     merge = function (destination) {
-        //         var i = 1,
-        //             ln = arguments.length,
-        //             mergeFn = merge,
-        //             cloneFn = clone,
-        //             object, key, value, sourceKey;
-
-        //         for (; i < ln; i++) {
-        //             object = arguments[i];
-
-        //             for (key in object) {
-        //                 value = object[key];
-        //                 if (value && value.constructor === Object) {
-        //                     sourceKey = destination[key];
-        //                     if (sourceKey && sourceKey.constructor === Object) {
-        //                         mergeFn(sourceKey, value);
-        //                     } else {
-        //                         destination[key] = cloneFn(value);
-        //                     }
-        //                 } else {
-        //                     destination[key] = value;
-        //                 }
-        //             }
-        //         }
-
-        //         return destination;
-        //     },
-        //     isArray = function (value) {
-        //         return toString.call(value) === '[object Array]';
-        //     };
-        // var highlight = function (doc) {
-        //     "use strict";
-        //     var defaults = {
-        //         node: null,
-        //         pattern: null,
-        //         tagName: "strong",
-        //         className: null,
-        //         wordsOnly: false,
-        //         caseSensitive: false
-        //     };
-        //     return function hightlight(o) {
-        //         var regex;
-        //         // o = _.mixin({}, defaults, o);
-        //         o = merge({}, defaults, o);
-        //         if (!o.node || !o.pattern) {
-        //             return;
-        //         }
-        //         o.pattern = isArray(o.pattern) ? o.pattern : [o.pattern];
-        //         regex = getRegex(o.pattern, o.caseSensitive, o.wordsOnly);
-        //         traverse(o.node, hightlightTextNode);
-        //         function hightlightTextNode(textNode) {
-        //             var match, patternNode, wrapperNode;
-        //             if (match = regex.exec(textNode.data)) {
-        //                 wrapperNode = doc.createElement(o.tagName);
-        //                 o.className && (wrapperNode.className = o.className);
-        //                 patternNode = textNode.splitText(match.index);
-        //                 patternNode.splitText(match[0].length);
-        //                 wrapperNode.appendChild(patternNode.cloneNode(true));
-        //                 textNode.parentNode.replaceChild(wrapperNode, patternNode);
-        //             }
-        //             return !!match;
-        //         }
-        //         function traverse(el, hightlightTextNode) {
-        //             var childNode, TEXT_NODE_TYPE = 3;
-        //             for (var i = 0; i < el.childNodes.length; i++) {
-        //                 childNode = el.childNodes[i];
-        //                 if (childNode.nodeType === TEXT_NODE_TYPE) {
-        //                     i += hightlightTextNode(childNode) ? 1 : 0;
-        //                 } else {
-        //                     traverse(childNode, hightlightTextNode);
-        //                 }
-        //             }
-        //         }
-        //     };
-        //     function getRegex(patterns, caseSensitive, wordsOnly) {
-        //         var escapedPatterns = [], regexStr;
-        //         for (var i = 0, len = patterns.length; i < len; i++) {
-        //             escapedPatterns.push(_.escapeRegExChars(patterns[i]));
-        //         }
-        //         regexStr = wordsOnly ? "\\b(" + escapedPatterns.join("|") + ")\\b" : "(" + escapedPatterns.join("|") + ")";
-        //         return caseSensitive ? new RegExp(regexStr) : new RegExp(regexStr, "i");
-        //     }
-        // } (window.document);
 
         wrapInTag = function (item, text) {
-
+            text = text.replace(/[\-\[\]{}()*+?.,\\\^$|#\s]/g, '\\$&');//Se reemplaza en la normalizacion
             var tag = 'strong',
                 words = text.split(" ") || [],
                 regex = RegExp(words.join('|'), 'gi'),
