@@ -1,4 +1,4 @@
-<script src="http://localhost:6742/socket.io/socket.io.js"></script>
+<script src="http://192.168.56.99:6742/socket.io/socket.io.js"></script>
 <style>
     .blackboard {
         height: 500px;
@@ -19,7 +19,7 @@
     window.addEventListener('DOMContentLoaded', function () {
 
         // var socket = io.connect("http://192.168.120.230:6742");
-        var socket = io("http://192.168.120.230:6742");
+        var socket = io("http://192.168.56.99:6742");
         //<debug>
         var sendData = null;
         var lastValue = '';
@@ -98,7 +98,7 @@
         highlighter = function (item, query) {
             query = query || this.query;
             query = query.replace(/[\-\[\]{}()*+?.,\\\^$|#\s]/g, '\\$&');
-            
+
             return item.replace(new RegExp('(' + query + ')', 'ig'), function ($1, match) {
                 return '<strong>' + match + '</strong>'
             })

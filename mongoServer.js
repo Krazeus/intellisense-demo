@@ -1,4 +1,4 @@
-/**
+/*!
  * @author miguel yax <mig_dj@hotmail.com>
  * date 1/25/2017
  * intellisense remote with node js
@@ -15,8 +15,7 @@ var MongoClient = require('mongodb').MongoClient,
     assert = require('assert');
 
 var port = 6742;
-var ip = 'http://192.168.120.230';
-
+var ip = '192.168.56.99';
 /*
  * @cfg {String} lastIndex  `''` ultimo indice buscado
  */
@@ -55,7 +54,7 @@ app.get('/', function (req, res) {
 });
 
 io.on('connection', function (socket) {
-    // Connection URL 
+    // Connection URL
     // var url = 'mongodb://192.168.120.230:27017/config';
     var mongoContext = null;
     MongoClient.connect('mongodb://192.168.120.230:27017/config', function (err, db) {
@@ -131,7 +130,6 @@ io.on('connection', function (socket) {
         /**
          * sendQuery ejecuta una consulta en base de dados con una configuracion y una instruccion sql
          * @param {Object} credential  `{ user: '', password: '', server: '', database:'' }` credenciales de autentificacion
-         * @param {String} query  `''` instruccion sql a ejecutar
          * @param {String} collectionName  `''` Nombre de la colleccion a buscar
          * @param {String} lang  `''` Lenguaje base
          * @param {function} calback  `function` handler para respuesta de considencias 
@@ -228,6 +226,7 @@ io.on('connection', function (socket) {
                 console.log('records', data.length);
                 //</debug>
                 calback(err, data);
+
             });
         };
 
@@ -242,7 +241,6 @@ io.on('connection', function (socket) {
     socket.on('search', function (data) {
         if (data.value) {
             var search = sendQuery(data.value, "R_" + data.eventValue + "_" + data.lang, data.lang, function (err, data) {
-
                 socket.emit('hints', {
                     records: (err) ? [] : data,
                     success: (err) ? false : true,
