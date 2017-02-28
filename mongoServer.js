@@ -15,7 +15,7 @@ var MongoClient = require('mongodb').MongoClient,
     assert = require('assert');
 
 var port = 6742;
-var ip = '192.168.56.99';
+var ip = '192.168.120.230';
 /*
  * @cfg {String} lastIndex  `''` ultimo indice buscado
  */
@@ -192,28 +192,28 @@ io.on('connection', function (socket) {
 
             var collection = mongoContext.collection(collectionName);
             var whereMongo = {};
-            if (categories.length === 0) {                
+            if (categories.length === 0) {
                 whereMongo = {
                     $text: {
                         $search: text,
                         $caseSensitive: false
                     }
-                };                
+                };
             }
             else {
-                if (text == "") {                    
+                if (text == "") {
                     whereMongo = {
                         INTERNALCODE: { $in: [categories] }
-                    };                    
+                    };
                 }
                 else {
-                    
+
                     whereMongo = {
                         $and: [
                             { $text: { $search: text, $caseSensitive: false } },
                             { INTERNALCODE: { $in: [categories] } }
                         ]
-                    };                
+                    };
                 }
             }
             var resultList = mongoQuery(
@@ -225,7 +225,10 @@ io.on('connection', function (socket) {
                 //<debug>
                 console.log('records', data.length);
                 //</debug>
-                calback(err, data);
+                calback(err, {
+                    records: data,
+                    hasCategory: (categories.length > 0)
+                });
 
             });
         };
@@ -240,11 +243,12 @@ io.on('connection', function (socket) {
     });
     socket.on('search', function (data) {
         if (data.value) {
-            var search = sendQuery(data.value, "R_" + data.eventValue + "_" + data.lang, data.lang, function (err, data) {
+            var search = sendQuery(data.value, "R_" + data.eventValue + "_" + data.lang, data.lang, function (err, result) {
                 socket.emit('hints', {
-                    records: (err) ? [] : data,
+                    records: (err) ? [] : result.records,
                     success: (err) ? false : true,
                     keyIndex: lastIndex,
+                    hasCategory: result.hasCategory,
                     isEqual: true
                 });
             });
