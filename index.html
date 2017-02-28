@@ -1,4 +1,4 @@
-<script src="http://192.168.120.230:6742/socket.io/socket.io.js"></script>
+<script src="http://localhost:6742/socket.io/socket.io.js"></script>
 <style>
     .blackboard {
         height: 500px;
@@ -72,7 +72,7 @@
                 sendData = new Date().getTime()
                 //</debug>
                 lastValue = value;
-                socket.emit("search", { value: value, index: indexElement.value })
+                socket.emit("search", { value: value, index: indexElement.value, eventValue: "865066397", lang: "ES" })
             },
             /**
              * @method searchOnWebService call rest web service
@@ -86,7 +86,7 @@
             };
 
         wrapInTag = function (item, text) {
-            text = text.replace(/[\-\[\]{}()*+?.,\\\^$|#\s]/g, '\\$&');//Se reemplaza en la normalizacion
+            //text = text.replace(/[\-\[\]{}()*+?.,\\\^$|#\s]/g, '\\$&');//Se reemplaza en la normalizacion
             var tag = 'strong',
                 words = text.split(" ") || [],
                 regex = RegExp(words.join('|'), 'gi'),

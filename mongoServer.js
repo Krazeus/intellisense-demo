@@ -7,21 +7,16 @@
 var app = require('express')();
 var server = require('http').Server(app);
 var io = require('socket.io')(server);
-//var bodyParser = require('body-parser');
 var fs = require('fs');
 var categoryList = JSON.parse(fs.readFileSync('data/categories.json', 'utf8'));
-
-//app.use('/', express.static(require('path').join(__dirname, 'scripts')));
-//app.use(bodyParser.urlencoded({ extended: true }));
-//app.use(bodyParser.json());
 
 //word not allowed
 var MongoClient = require('mongodb').MongoClient,
     assert = require('assert');
 
-
 var port = 6742;
-var ip = '192.168.120.230';
+var ip = 'http://192.168.120.230';
+
 /*
  * @cfg {String} lastIndex  `''` ultimo indice buscado
  */
@@ -53,51 +48,6 @@ var normalize = (function () {
     };
 })();
 
-
-//var data = [];
-
-
-var getIndex = function (text) {
-
-    text.replace(/[.\-\_&\/,:;%]/g, ' ');
-
-    text.replace(/\s\s+/g, ' ');
-
-    text = normalize(text);
-
-    /**
-     * selecciona 3 caracteres
-     */
-    //var matches = text.match(/\b(\w{3})/g);
-    var matches = text.match(/\b(\w)/g);
-    var array = matches || [];
-    if (array.length > 1) {
-        array = array.sort();
-    }
-
-    var letters = array;
-    var combi = [];
-    var temp = "";
-    var letLen = Math.pow(2, letters.length);
-
-    for (var i = 0; i < letLen; i++) {
-        temp = "";
-        for (var j = 0; j < letters.length; j++) {
-            if ((i & Math.pow(2, j))) {
-                temp += letters[j] + "_";
-            }
-        }
-        temp = temp.substring(0, temp.length - 1);
-        if (temp !== "") {
-            combi.push({
-                value: temp.toUpperCase(),
-                index: letters.length
-            });
-        }
-    }
-    return combi;
-};
-
 server.listen(port);
 
 app.get('/', function (req, res) {
@@ -114,19 +64,11 @@ io.on('connection', function (socket) {
         mongoContext = db;
     });
 
-    var
-        /**
-         * sendQuery ejecuta una consulta en base de dados con una configuracion y una instruccion sql
-         * @param {Object} credential  `{ user: '', password: '', server: '', database:'' }` credenciales de autentificacion
-         * @param {String} query  `''` instruccion sql a ejecutar
-         * @param {function} calback  `function` handler para respuesta de considencias 
-         * @return {Array} data  `[]`  solved data
-         * @private
-         */
-        sendQuery = function (text, calback) {
+    
+    var excludedWordsArray = new Array();
+    var synonyms = new Array();
+         
 
-            text = normalize(text);
-            //quitar articulaciones
 
             /**
              *         var Events = edge.func({
@@ -138,55 +80,151 @@ io.on('connection', function (socket) {
                        var eventsArray = Events('{"uuidOrganizationNode" :"a8842958-7bb6-4493-8a4b-d859c655eef7", "uuidModule":"844288EA-C950-432A-9322-D62A6BFEE579"}');
              */
 
-            var collection = mongoContext.collection('R_865066397_ES');
-            var resultList = collection.find(
-                {
-                    $text: {
-                        $search: text,
-                        $caseSensitive: false
-                    }
-                }, {
-                    score: { $meta: "textScore" }
-                }).sort({ score: { $meta: "textScore" } }
-                //     {
-                //     $text: {
-                //         $search: text,
-                //         $caseSensitive: false
-                //     }
-                // }, {
-                //         VALUE: 1,
-                //         TOKEN: 1,
-                //         EXPRESSION: 1,
-                //         UUID: 1,
-                //         _id: 0,
-                //         score: {
-                //             $meta: "textScore"
-                //         }
-                //     }).sort({
-                //         score: {
-                //             $meta: "textScore"
-                //         }
-                //     }
-                ).limit(50);
 
-            // calback(err, resultList);
-            // var resultData = [];
+    var
+        /**
+         * sendQuery ejecuta una consulta en base de dados con una configuracion y una instruccion sql
+         * @param {Object} credential  `{ user: '', password: '', server: '', database:'' }` credenciales de autentificacion
+         * @param {String} query  `''` instruccion sql a ejecutar
+         * @param {String} collectionName  `''` Nombre de la colleccion a buscar
+         * @param {String} lang  `''` Lenguaje base
+         * @param {function} calback  `function` handler para respuesta de considencias 
+         * @return {Array} data  `[]`  solved data
+         * @private
+         */
+        sendQuery = function (text, collectionName, lang, calback) {
+            var categories = "";
+            
+            if(excludedWordsArray.length == 0){
+                var Excluded = mongoContext.collection('R_EXCLUDEDWORDS_' + lang);
+                Excluded.find({}, {_id:0, VALUE:1}).toArray(function (err, result) {
+                            var i, count;
+                            for (i = 0, count = result.length; i < count; i++) {
+                                excludedWordsArray.push(result[i].VALUE.toString());
+                            }
+                            return excludedWordsArray;
+                        });
+            }
+            else
+            {
+                for(var i = 0; i < excludedWordsArray.length; i++){
+                    var a1 = text.substring(0, excludedWordsArray[i].length + 1);
+                    var a2 = excludedWordsArray[i].toString() + " ";
+                    if(a1 == a2)
+                        text = text.substring(excludedWordsArray[i].toString().length + 1, text.length)
+
+                    text = text.replace(" " + excludedWordsArray[i].toString() + " ", " ");
+                }
+            }
+
+
+            if(synonyms.length == 0){
+                var synonymsContext = mongoContext.collection('R_SYNONYMS_' + lang);
+                synonymsContext.find({}, {_id:0, INTERNALCODE:1 , VALUE:1}).toArray(function (err, resultSyn) {
+                            var i, count;
+                            for (i = 0, count = resultSyn.length; i < count; i++) {
+                                synonyms.push(resultSyn[i]);
+                            }
+                            return synonyms;
+                        });
+            }
+            else
+            {
+                for(var i = 0; i < synonyms.length; i++){
+                    if(text.includes(synonyms[i].VALUE.toString())){
+                        categories += "," + synonyms[i].INTERNALCODE.toString();
+                        text = text.replace(synonyms[i].VALUE.toString(), "");
+                    }
+                }
+                if(categories.length > 0)
+                    categories = categories.substring(1, categories.length)
+            }
+
+            
+            text = normalize(text);
+            text.trim();
+
+            console.log("text search", text, categories);
+            //quitar articulaciones
+            
+            var collection = mongoContext.collection(collectionName);
+
+            if(categories.length === 0)
+            {
+                var resultList = collection.find({
+                        $text: {
+                            $search: text,
+                            $caseSensitive: false
+                        }
+                    }, {
+                            VALUE: 1,
+                            TOKEN: 1,
+                            EXPRESSION: 1,
+                            UUID: 1,
+                            INTERNALCODE: 1,
+                            _id: 0,
+                            score: {
+                                $meta: "textScore"
+                            }
+                        }).sort({
+                            score: {
+                                $meta: "textScore"
+                            }
+                        }
+                    ).limit(50);
+            }
+            else{
+                if(text == ""){
+                    var resultList = collection.find(
+                        {  INTERNALCODE:{$in:[ categories ]}  
+                        }, {
+                                VALUE: 1,
+                                TOKEN: 1,
+                                EXPRESSION: 1,
+                                UUID: 1,
+                                INTERNALCODE: 1,
+                                _id: 0,
+                                score: {
+                                    $meta: "textScore"
+                                }
+                            }).sort({
+                                score: {
+                                    $meta: "textScore"
+                                }
+                            }
+                        ).limit(50);
+                }
+                else
+                {
+                    var resultList = collection.find(
+                        { $and:[
+                                {$text: {$search: text, $caseSensitive: false}},
+                                {   INTERNALCODE:{$in:[ categories ]}   }
+                            ]
+                        }, {
+                                VALUE: 1,
+                                TOKEN: 1,
+                                EXPRESSION: 1,
+                                UUID: 1,
+                                INTERNALCODE: 1,
+                                _id: 0,
+                                score: {
+                                    $meta: "textScore"
+                                }
+                            }).sort({
+                                score: {
+                                    $meta: "textScore"
+                                }
+                            }
+                        ).limit(50);
+                }
+
+            }
 
             resultList.toArray(function (err, data) {
                  assert.equal(err, null);            
                  calback(err, data);
-            //     // str = JSON.stringify(data);
-            //     // str = str.replace("VALUE","v");
-            //     // str = str.replace("TOKEN","t");
-            //     // str = str.replace("EXPRESSION","e");
-            //     // str = str.replace("UUID","i");
-            //     // data  = JSON.parse(str);
-
-
-
              });
-
-            // return resultData || [];
         };
 
     /**
@@ -194,13 +232,12 @@ io.on('connection', function (socket) {
      * @return {Object} contextMongo  `null` contexto de mongo
      * @private
      */
-
     socket.on('disconnect', function (data) {
         mongoContext.close();
     });
     socket.on('search', function (data) {
         if (data.value) {
-            var search = sendQuery(data.value, function (err, data) {
+            var search = sendQuery(data.value, "R_" + data.eventValue + "_" + data.lang, data.lang, function (err, data) {
 
                 socket.emit('hints', {
                     records: (err) ? [] : data,
@@ -209,12 +246,6 @@ io.on('connection', function (socket) {
                     isEqual: true
                 });
             });
-
-            // socket.emit('hints', {
-            //     records: search,
-            //     keyIndex: lastIndex,
-            //     isEqual: true
-            // });
         }
     });
 });
