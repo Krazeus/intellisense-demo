@@ -3,11 +3,10 @@
  * date 1/25/2017
  * intellisense remote with node js
  */
-
+//var edge = require('edge');
 var app = require('express')();
 var server = require('http').Server(app);
 var io = require('socket.io')(server);
-
 var fs = require('fs');
 var categoryList = JSON.parse(fs.readFileSync('data/categories.json', 'utf8'));
 
@@ -15,9 +14,8 @@ var categoryList = JSON.parse(fs.readFileSync('data/categories.json', 'utf8'));
 var MongoClient = require('mongodb').MongoClient,
     assert = require('assert');
 
-
 var port = 6742;
-var ip = '192.168.56.99';
+var ip = '192.168.120.230';
 /*
  * @cfg {String} lastIndex  `''` ultimo indice buscado
  */
@@ -34,7 +32,7 @@ var normalize = (function () {
     }
 
     return function (str) {
-        str = str.toUpperCase();
+        //str = str.toUpperCase();
         str.replace(/[.\-\_&\/,:;%]/g, ' ');
         str.replace(/\s\s+/g, ' ');
         var ret = [];
@@ -48,51 +46,6 @@ var normalize = (function () {
         return ret.join('');
     };
 })();
-
-
-//var data = [];
-
-
-var getIndex = function (text) {
-
-    text.replace(/[.\-\_&\/,:;%]/g, ' ');
-
-    text.replace(/\s\s+/g, ' ');
-
-    text = normalize(text);
-
-    /**
-     * selecciona 3 caracteres
-     */
-    //var matches = text.match(/\b(\w{3})/g);
-    var matches = text.match(/\b(\w)/g);
-    var array = matches || [];
-    if (array.length > 1) {
-        array = array.sort();
-    }
-
-    var letters = array;
-    var combi = [];
-    var temp = "";
-    var letLen = Math.pow(2, letters.length);
-
-    for (var i = 0; i < letLen; i++) {
-        temp = "";
-        for (var j = 0; j < letters.length; j++) {
-            if ((i & Math.pow(2, j))) {
-                temp += letters[j] + "_";
-            }
-        }
-        temp = temp.substring(0, temp.length - 1);
-        if (temp !== "") {
-            combi.push({
-                value: temp.toUpperCase(),
-                index: letters.length
-            });
-        }
-    }
-    return combi;
-};
 
 server.listen(port);
 
@@ -110,48 +63,173 @@ io.on('connection', function (socket) {
         mongoContext = db;
     });
 
+
+    var excludedWordsArray = new Array();
+    var synonyms = new Array();
+
+
+
+    /**
+     *         var Events = edge.func({
+                   assemblyFile: 'C:/Monitor Plus/Narrativa/intellisense-demo/libs/BLL.dll',
+                   typeName: 'BLL.Config.EVENT',
+                   methodName: 'Invoke'//'allAsync' // Func<object,Task<object>>
+               });
+   
+               var eventsArray = Events('{"uuidOrganizationNode" :"a8842958-7bb6-4493-8a4b-d859c655eef7", "uuidModule":"844288EA-C950-432A-9322-D62A6BFEE579"}');
+     */
+
+
     var
+        /**
+         * @method mongoQuery description
+         * @param {Object} options  `[]` description
+         * @param {collection} collection  `{}` instance of mongo collection
+         * @return {Array} data `[]` array solved
+         * @private
+         */
+        mongoQuery = function (options, collection, limit, callback) {
+            options = options || {};
+            var config = options;
+            var data = [];
+
+            // if (options.and) {
+            //     config['$and'] = [];
+            //     config[options.logicConnector] = []
+            //     if (options.text) {
+            //         config['$and'].push({
+            //             $text: {
+            //                 $search: options.text
+            //             }
+            //         })
+            //     }
+            // }
+            if (collection) {
+                data = collection.find(
+                    config
+                    , {
+                        VALUE: 1,
+                        TOKEN: 1,
+                        EXPRESSION: 1,
+                        UUID: 1,
+                        INTERNALCODE: 1,
+                        _id: 0,
+                        score: {
+                            $meta: "textScore"
+                        }
+                    }).sort({
+                        score: {
+                            $meta: "textScore"
+                        }
+                    }
+                    ).limit(limit || 50);
+            }
+
+            return data;
+        },
         /**
          * sendQuery ejecuta una consulta en base de dados con una configuracion y una instruccion sql
          * @param {Object} credential  `{ user: '', password: '', server: '', database:'' }` credenciales de autentificacion
-         * @param {String} query  `''` instruccion sql a ejecutar
-         * @param {function} callback  `default` description
+         * @param {String} collectionName  `''` Nombre de la colleccion a buscar
+         * @param {String} lang  `''` Lenguaje base
+         * @param {function} calback  `function` handler para respuesta de considencias 
          * @return {Array} data  `[]`  solved data
          * @private
          */
-        sendQuery = function (text, callback) {
-            //quitar articulaciones
-            //buscar categorias
+
+        sendQuery = function (text, collectionName, lang, calback) {
+            var categories = "";
+
+            if (excludedWordsArray.length == 0) {
+                var Excluded = mongoContext.collection('R_EXCLUDEDWORDS_' + lang);
+                Excluded.find({}, { _id: 0, VALUE: 1 }).toArray(function (err, result) {
+                    var i, count;
+                    for (i = 0, count = result.length; i < count; i++) {
+                        excludedWordsArray.push(result[i].VALUE.toString());
+                    }
+                    return excludedWordsArray;
+                });
+            }
+            else {
+                for (var i = 0; i < excludedWordsArray.length; i++) {
+                    var a1 = text.substring(0, excludedWordsArray[i].length + 1);
+                    var a2 = excludedWordsArray[i].toString() + " ";
+                    if (a1 == a2)
+                        text = text.substring(excludedWordsArray[i].toString().length + 1, text.length)
+
+                    text = text.replace(" " + excludedWordsArray[i].toString() + " ", " ");
+                }
+            }
+
+
+            if (synonyms.length == 0) {
+                var synonymsContext = mongoContext.collection('R_SYNONYMS_' + lang);
+                synonymsContext.find({}, { _id: 0, INTERNALCODE: 1, VALUE: 1 }).toArray(function (err, resultSyn) {
+                    var i, count;
+                    for (i = 0, count = resultSyn.length; i < count; i++) {
+                        synonyms.push(resultSyn[i]);
+                    }
+                    return synonyms;
+                });
+            }
+            else {
+                for (var i = 0; i < synonyms.length; i++) {
+                    if (text.includes(synonyms[i].VALUE.toString())) {
+                        categories += "," + synonyms[i].INTERNALCODE.toString();
+                        text = text.replace(synonyms[i].VALUE.toString(), "");
+                    }
+                }
+                if (categories.length > 0)
+                    categories = categories.substring(1, categories.length)
+            }
+
+
             text = normalize(text);
+            text.trim();
 
-            var collection = mongoContext.collection('dictionary');
-            var resultList = collection.find({
-                $text: {
-                    $search: text,
-                    $caseSensitive: false
+            console.log("text search", text, categories);
+            //quitar articulaciones
+
+            var collection = mongoContext.collection(collectionName);
+            var whereMongo = {};
+            if (categories.length === 0) {
+                whereMongo = {
+                    $text: {
+                        $search: text,
+                        $caseSensitive: false
+                    }
+                };
+            }
+            else {
+                if (text == "") {
+                    whereMongo = {
+                        INTERNALCODE: { $in: [categories] }
+                    };
                 }
-            }, {
-                    v: 1,
-                    t: 1,
-                    e: 1,
-                    i: 1,
-                    _id: 0,
-                    score: {
-                        $meta: "textScore"
-                    }
-                }).sort({
-                    score: {
-                        $meta: "textScore"
-                    }
-                }).limit(50);
+                else {
 
-            var resultData = [];
-            var sortedList = resultList.toArray(function (err, data) {
+                    whereMongo = {
+                        $and: [
+                            { $text: { $search: text, $caseSensitive: false } },
+                            { INTERNALCODE: { $in: [categories] } }
+                        ]
+                    };
+                }
+            }
+            var resultList = mongoQuery(
+                whereMongo,
+                collection
+            );
+            resultList.toArray(function (err, data) {
                 assert.equal(err, null);
-                if (err) {
-                    return callback(err);
-                }
-                callback(null, data);
+                //<debug>
+                console.log('records', data.length);
+                //</debug>
+                calback(err, {
+                    records: data,
+                    hasCategory: (categories.length > 0)
+                });
+
             });
         };
 
@@ -160,16 +238,17 @@ io.on('connection', function (socket) {
      * @return {Object} contextMongo  `null` contexto de mongo
      * @private
      */
-
     socket.on('disconnect', function (data) {
         mongoContext.close();
     });
     socket.on('search', function (data) {
         if (data.value) {
-            var search = sendQuery(data.value, function (err, data) {
+            var search = sendQuery(data.value, "R_" + data.eventValue + "_" + data.lang, data.lang, function (err, result) {
                 socket.emit('hints', {
-                    records: (err) ? [] : data,
+                    records: (err) ? [] : result.records,
+                    success: (err) ? false : true,
                     keyIndex: lastIndex,
+                    hasCategory: result.hasCategory,
                     isEqual: true
                 });
             });

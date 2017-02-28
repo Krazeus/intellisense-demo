@@ -18,6 +18,7 @@
   "homepage": "https://github.com/Krazeus/intellisense-demo#readme",
   "dependencies": {
     "bloodhound-js": "^1.2.1",
+    "edge": "^6.5.1",
     "express": "^4.14.0",
     "handlebars": "^4.0.6",
     "jquery": "^3.1.1",
