@@ -64,24 +64,70 @@ io.on('connection', function (socket) {
         mongoContext = db;
     });
 
-    
+
     var excludedWordsArray = new Array();
     var synonyms = new Array();
-         
 
 
-            /**
-             *         var Events = edge.func({
-                           assemblyFile: 'C:/Monitor Plus/Narrativa/intellisense-demo/libs/BLL.dll',
-                           typeName: 'BLL.Config.EVENT',
-                           methodName: 'Invoke'//'allAsync' // Func<object,Task<object>>
-                       });
-           
-                       var eventsArray = Events('{"uuidOrganizationNode" :"a8842958-7bb6-4493-8a4b-d859c655eef7", "uuidModule":"844288EA-C950-432A-9322-D62A6BFEE579"}');
-             */
+
+    /**
+     *         var Events = edge.func({
+                   assemblyFile: 'C:/Monitor Plus/Narrativa/intellisense-demo/libs/BLL.dll',
+                   typeName: 'BLL.Config.EVENT',
+                   methodName: 'Invoke'//'allAsync' // Func<object,Task<object>>
+               });
+   
+               var eventsArray = Events('{"uuidOrganizationNode" :"a8842958-7bb6-4493-8a4b-d859c655eef7", "uuidModule":"844288EA-C950-432A-9322-D62A6BFEE579"}');
+     */
 
 
     var
+        /**
+         * @method mongoQuery description
+         * @param {Object} options  `[]` description
+         * @param {collection} collection  `{}` instance of mongo collection
+         * @return {Array} data `[]` array solved
+         * @private
+         */
+        mongoQuery = function (options, collection, limit, callback) {
+            options = options || {};
+            var config = options;
+            var data = [];
+
+            // if (options.and) {
+            //     config['$and'] = [];
+            //     config[options.logicConnector] = []
+            //     if (options.text) {
+            //         config['$and'].push({
+            //             $text: {
+            //                 $search: options.text
+            //             }
+            //         })
+            //     }
+            // }
+            if (collection) {
+                data = collection.find(
+                    config
+                    , {
+                        VALUE: 1,
+                        TOKEN: 1,
+                        EXPRESSION: 1,
+                        UUID: 1,
+                        INTERNALCODE: 1,
+                        _id: 0,
+                        score: {
+                            $meta: "textScore"
+                        }
+                    }).sort({
+                        score: {
+                            $meta: "textScore"
+                        }
+                    }
+                    ).limit(limit || 50);
+            }
+
+            return data;
+        },
         /**
          * sendQuery ejecuta una consulta en base de dados con una configuracion y una instruccion sql
          * @param {Object} credential  `{ user: '', password: '', server: '', database:'' }` credenciales de autentificacion
@@ -92,25 +138,25 @@ io.on('connection', function (socket) {
          * @return {Array} data  `[]`  solved data
          * @private
          */
+
         sendQuery = function (text, collectionName, lang, calback) {
             var categories = "";
-            
-            if(excludedWordsArray.length == 0){
+
+            if (excludedWordsArray.length == 0) {
                 var Excluded = mongoContext.collection('R_EXCLUDEDWORDS_' + lang);
-                Excluded.find({}, {_id:0, VALUE:1}).toArray(function (err, result) {
-                            var i, count;
-                            for (i = 0, count = result.length; i < count; i++) {
-                                excludedWordsArray.push(result[i].VALUE.toString());
-                            }
-                            return excludedWordsArray;
-                        });
+                Excluded.find({}, { _id: 0, VALUE: 1 }).toArray(function (err, result) {
+                    var i, count;
+                    for (i = 0, count = result.length; i < count; i++) {
+                        excludedWordsArray.push(result[i].VALUE.toString());
+                    }
+                    return excludedWordsArray;
+                });
             }
-            else
-            {
-                for(var i = 0; i < excludedWordsArray.length; i++){
+            else {
+                for (var i = 0; i < excludedWordsArray.length; i++) {
                     var a1 = text.substring(0, excludedWordsArray[i].length + 1);
                     var a2 = excludedWordsArray[i].toString() + " ";
-                    if(a1 == a2)
+                    if (a1 == a2)
                         text = text.substring(excludedWordsArray[i].toString().length + 1, text.length)
 
                     text = text.replace(" " + excludedWordsArray[i].toString() + " ", " ");
@@ -118,113 +164,71 @@ io.on('connection', function (socket) {
             }
 
 
-            if(synonyms.length == 0){
+            if (synonyms.length == 0) {
                 var synonymsContext = mongoContext.collection('R_SYNONYMS_' + lang);
-                synonymsContext.find({}, {_id:0, INTERNALCODE:1 , VALUE:1}).toArray(function (err, resultSyn) {
-                            var i, count;
-                            for (i = 0, count = resultSyn.length; i < count; i++) {
-                                synonyms.push(resultSyn[i]);
-                            }
-                            return synonyms;
-                        });
+                synonymsContext.find({}, { _id: 0, INTERNALCODE: 1, VALUE: 1 }).toArray(function (err, resultSyn) {
+                    var i, count;
+                    for (i = 0, count = resultSyn.length; i < count; i++) {
+                        synonyms.push(resultSyn[i]);
+                    }
+                    return synonyms;
+                });
             }
-            else
-            {
-                for(var i = 0; i < synonyms.length; i++){
-                    if(text.includes(synonyms[i].VALUE.toString())){
+            else {
+                for (var i = 0; i < synonyms.length; i++) {
+                    if (text.includes(synonyms[i].VALUE.toString())) {
                         categories += "," + synonyms[i].INTERNALCODE.toString();
                         text = text.replace(synonyms[i].VALUE.toString(), "");
                     }
                 }
-                if(categories.length > 0)
+                if (categories.length > 0)
                     categories = categories.substring(1, categories.length)
             }
 
-            
+
             text = normalize(text);
             text.trim();
 
             console.log("text search", text, categories);
             //quitar articulaciones
-            
+
             var collection = mongoContext.collection(collectionName);
-
-            if(categories.length === 0)
-            {
-                var resultList = collection.find({
-                        $text: {
-                            $search: text,
-                            $caseSensitive: false
-                        }
-                    }, {
-                            VALUE: 1,
-                            TOKEN: 1,
-                            EXPRESSION: 1,
-                            UUID: 1,
-                            INTERNALCODE: 1,
-                            _id: 0,
-                            score: {
-                                $meta: "textScore"
-                            }
-                        }).sort({
-                            score: {
-                                $meta: "textScore"
-                            }
-                        }
-                    ).limit(50);
+            var whereMongo = {};
+            if (categories.length === 0) {                
+                whereMongo = {
+                    $text: {
+                        $search: text,
+                        $caseSensitive: false
+                    }
+                };                
             }
-            else{
-                if(text == ""){
-                    var resultList = collection.find(
-                        {  INTERNALCODE:{$in:[ categories ]}  
-                        }, {
-                                VALUE: 1,
-                                TOKEN: 1,
-                                EXPRESSION: 1,
-                                UUID: 1,
-                                INTERNALCODE: 1,
-                                _id: 0,
-                                score: {
-                                    $meta: "textScore"
-                                }
-                            }).sort({
-                                score: {
-                                    $meta: "textScore"
-                                }
-                            }
-                        ).limit(50);
+            else {
+                if (text == "") {                    
+                    whereMongo = {
+                        INTERNALCODE: { $in: [categories] }
+                    };                    
                 }
-                else
-                {
-                    var resultList = collection.find(
-                        { $and:[
-                                {$text: {$search: text, $caseSensitive: false}},
-                                {   INTERNALCODE:{$in:[ categories ]}   }
-                            ]
-                        }, {
-                                VALUE: 1,
-                                TOKEN: 1,
-                                EXPRESSION: 1,
-                                UUID: 1,
-                                INTERNALCODE: 1,
-                                _id: 0,
-                                score: {
-                                    $meta: "textScore"
-                                }
-                            }).sort({
-                                score: {
-                                    $meta: "textScore"
-                                }
-                            }
-                        ).limit(50);
+                else {
+                    
+                    whereMongo = {
+                        $and: [
+                            { $text: { $search: text, $caseSensitive: false } },
+                            { INTERNALCODE: { $in: [categories] } }
+                        ]
+                    };                
                 }
-
             }
-
+            var resultList = mongoQuery(
+                whereMongo,
+                collection
+            );
             resultList.toArray(function (err, data) {
-                 assert.equal(err, null);            
-                 calback(err, data);
-             });
+                assert.equal(err, null);
+                //<debug>
+                console.log('records', data.length);
+                //</debug>
+                calback(err, data);
+            });
         };
 
     /**
