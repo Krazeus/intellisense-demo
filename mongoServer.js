@@ -65,7 +65,8 @@ io.on('connection', function (socket) {
         console.log("Connected correctly to server");
         mongoContext = db;
     });
-
+    socket.emit('categories', categoryList);
+    // socket.emit('datatype', )
 
     var excludedWordsArray = [];
     var synonyms = [];
@@ -88,9 +89,9 @@ io.on('connection', function (socket) {
          */
         mongoQuery = function (options, collection, limit, callback, isRetry) {
             options = options || {};
-            var config
+            var config;
             if (isRetry) {
-                config = options.retry
+                config = options.retry;
                 options.retry = null;
             } else {
                 config = options.first;
@@ -114,7 +115,7 @@ io.on('connection', function (socket) {
                             $meta: "textScore"
                         }
                     }
-                    ).limit(limit || 50);
+                    ).limit(limit || 100);
 
                 data.toArray(function (err, data) {
                     assert.equal(err, null);
@@ -132,8 +133,8 @@ io.on('connection', function (socket) {
                     records: [],
                     hasCategory: (categories.length > 0)
                 });
-            }            
-        },      
+            }
+        },
         /**
          * sendQuery ejecuta una consulta en base de dados con una configuracion y una instruccion sql
          * @param {Object} credential  `{ user: '', password: '', server: '', database:'' }` credenciales de autentificacion
@@ -207,19 +208,19 @@ io.on('connection', function (socket) {
             };
 
             if (categories.length === 0) {
-                var listKey = text.split(" ").join("|")
+                var listKey = text.split(" ").join("|");
                 var regex = new RegExp(listKey.toString());
                 whereMongo = {
-                        first: {
-                            $text: {
-                                $search: text,
-                                $caseSensitive: false
-                            }
-                        },
-                        retry: {
-                            VALUE: { $regex : regex, $options: 'ix' }
+                    first: {
+                        $text: {
+                            $search: text,
+                            $caseSensitive: false
                         }
-                    };       
+                    },
+                    retry: {
+                        VALUE: { $regex: regex, $options: 'ix' }
+                    }
+                };
             }
             else {
 
@@ -240,15 +241,15 @@ io.on('connection', function (socket) {
                         retry: {
                             INTERNALCODE: { $in: categories }
                         }
-                    };                 
+                    };
                 }
             }
             var resultList = mongoQuery(
                 whereMongo,
                 collection,
-                50,
+                100,
                 callback
-            );          
+            );
         };
 
     /**
