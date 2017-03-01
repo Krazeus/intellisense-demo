@@ -81,6 +81,14 @@ io.on('connection', function (socket) {
 
 
     var
+        /*
+         * @property {Array} lastCategoryList  `[]` el ultimo listado de categorias consultado 
+         */
+        lastCategoryList = [],
+        /*
+         * @propery {Array} categories  `[]` actual listado de categorias a buscar
+         */
+        categories = [],
         /**
          * @method mongoQuery description
          * @param {Object} options  `[]` description
@@ -138,7 +146,7 @@ io.on('connection', function (socket) {
          */
 
         sendQuery = function (text, collectionName, lang, calback) {
-            var categories = "";
+            categories = [];
 
             if (excludedWordsArray.length == 0) {
                 var Excluded = mongoContext.collection('R_EXCLUDEDWORDS_' + lang);
@@ -154,7 +162,7 @@ io.on('connection', function (socket) {
                 for (var i = 0; i < excludedWordsArray.length; i++) {
                     var a1 = text.substring(0, excludedWordsArray[i].length + 1);
                     var a2 = excludedWordsArray[i].toString() + " ";
-                    if (a1 == a2)
+                    if (a1 === a2)
                         text = text.substring(excludedWordsArray[i].toString().length + 1, text.length)
 
                     text = text.replace(" " + excludedWordsArray[i].toString() + " ", " ");
@@ -162,7 +170,7 @@ io.on('connection', function (socket) {
             }
 
 
-            if (synonyms.length == 0) {
+            if (synonyms.length === 0) {
                 var synonymsContext = mongoContext.collection('R_SYNONYMS_' + lang);
                 synonymsContext.find({}, { _id: 0, INTERNALCODE: 1, VALUE: 1 }).toArray(function (err, resultSyn) {
                     var i, count;
@@ -175,17 +183,21 @@ io.on('connection', function (socket) {
             else {
                 for (var i = 0; i < synonyms.length; i++) {
                     if (text.includes(synonyms[i].VALUE.toString())) {
-                        categories += "," + synonyms[i].INTERNALCODE.toString();
+                        categories.push(synonyms[i].INTERNALCODE);
                         text = text.replace(synonyms[i].VALUE.toString(), "");
                     }
                 }
-                if (categories.length > 0)
-                    categories = categories.substring(1, categories.length)
             }
 
+            if (categories.length > 1) {
+                categories.sort(function (a, b) {
+                    return a - b;
+                });
+            }
 
+            //text = text.toUpperCase();
             text = normalize(text);
-            text.trim();
+            text = text.trim();
 
             console.log("text search", text, categories);
             //quitar articulaciones
@@ -193,6 +205,9 @@ io.on('connection', function (socket) {
             var collection = mongoContext.collection(collectionName);
             var whereMongo = {};
             if (categories.length === 0) {
+                // var listKey = text.split(" ").join("|")
+                // var regex = new RegExp(listKey.toString());
+                // whereMongo = { VALUE: { $regex : regex, $options: 'ix' } };
                 whereMongo = {
                     $text: {
                         $search: text,
@@ -201,17 +216,24 @@ io.on('connection', function (socket) {
                 };
             }
             else {
+                lastCategoryList = categories
                 if (text == "") {
                     whereMongo = {
-                        INTERNALCODE: { $in: [categories] }
+                        INTERNALCODE: { $in: categories }
                     };
                 }
                 else {
 
                     whereMongo = {
                         $and: [
-                            { $text: { $search: text, $caseSensitive: false } },
-                            { INTERNALCODE: { $in: [categories] } }
+                            {
+                                $text: {
+                                    $search: text,
+                                    $caseSensitive: false
+                                }
+                            },
+                            // { VALUE: {$regex : '.*' + text + '.*'}},
+                            { INTERNALCODE: { $in: categories } }
                         ]
                     };
                 }
@@ -222,9 +244,6 @@ io.on('connection', function (socket) {
             );
             resultList.toArray(function (err, data) {
                 assert.equal(err, null);
-                //<debug>
-                console.log('records', data.length);
-                //</debug>
                 calback(err, {
                     records: data,
                     hasCategory: (categories.length > 0)
@@ -244,12 +263,13 @@ io.on('connection', function (socket) {
     socket.on('search', function (data) {
         if (data.value) {
             var search = sendQuery(data.value, "R_" + data.eventValue + "_" + data.lang, data.lang, function (err, result) {
+
                 socket.emit('hints', {
                     records: (err) ? [] : result.records,
                     success: (err) ? false : true,
                     keyIndex: lastIndex,
                     hasCategory: result.hasCategory,
-                    isEqual: true
+                    isEqual: (!result.records.length && lastCategoryList === categories)
                 });
             });
         }

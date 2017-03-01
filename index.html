@@ -6,7 +6,7 @@
         float: left;
         background-color: lightblue;
     }
-
+    
     .result {
         height: 500px;
         width: 500px;
@@ -31,7 +31,10 @@
         });
 
         socket.on("hints", function (data) {
-            renderData(data);
+            data = data || {};
+            if (!data.isEqual) {
+                renderData(data);
+            }
         });
 
         var resultElement = document.getElementsByClassName("results")[0],
