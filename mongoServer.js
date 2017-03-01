@@ -8,14 +8,15 @@ var app = require('express')();
 var server = require('http').Server(app);
 var io = require('socket.io')(server);
 var fs = require('fs');
+var replace = require('replace');
+var config = JSON.parse(fs.readFileSync('config/default.json', 'utf8'));
 var categoryList = JSON.parse(fs.readFileSync('data/categories.json', 'utf8'));
+
 
 //word not allowed
 var MongoClient = require('mongodb').MongoClient,
     assert = require('assert');
 
-var port = 6742;
-var ip = '192.168.120.230';
 /*
  * @cfg {String} lastIndex  `''` ultimo indice buscado
  */
@@ -47,17 +48,27 @@ var normalize = (function () {
     };
 })();
 
-server.listen(port);
+server.listen(config.port);
 
 app.get('/', function (req, res) {
-    res.sendFile(__dirname + '/index.html');
+    // var indexFile = JSON.parse(fs.readFileSync(__dirname + "/index.html", 'utf8'));
+    // res.sendFile(__dirname + '/index.html');
+    var indexFilePath = __dirname +'/index.html';
+    replace({
+        regex: "{ipAndPort}",
+        replacement: config.ip + ":" + config.port,
+        paths: [indexFilePath],
+        recursive: true,
+        silent: true,
+    });
+
+    res.sendFile(indexFilePath);
 });
 
 io.on('connection', function (socket) {
     // Connection URL
-    // var url = 'mongodb://192.168.120.230:27017/config';
     var mongoContext = null;
-    MongoClient.connect('mongodb://192.168.120.230:27017/config', function (err, db) {
+    MongoClient.connect(config.mongodb.config, function (err, db) {
         assert.equal(null, err);
         console.log("Connected correctly to server");
         mongoContext = db;
