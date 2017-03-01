@@ -3,7 +3,6 @@
  * date 1/25/2017
  * intellisense remote with node js
  */
-//var edge = require('edge');
 var app = require('express')();
 var server = require('http').Server(app);
 var io = require('socket.io')(server);
@@ -70,19 +69,6 @@ io.on('connection', function (socket) {
 
     var excludedWordsArray = [];
     var synonyms = [];
-
-
-
-    /**
-     *         var Events = edge.func({
-                   assemblyFile: 'C:/Monitor Plus/Narrativa/intellisense-demo/libs/BLL.dll',
-                   typeName: 'BLL.Config.EVENT',
-                   methodName: 'Invoke'//'allAsync' // Func<object,Task<object>>
-               });
-
-               var eventsArray = Events('{"uuidOrganizationNode" :"a8842958-7bb6-4493-8a4b-d859c655eef7", "uuidModule":"844288EA-C950-432A-9322-D62A6BFEE579"}');
-     */
-
 
     var
         /*
@@ -223,13 +209,17 @@ io.on('connection', function (socket) {
             if (categories.length === 0) {
                 var listKey = text.split(" ").join("|")
                 var regex = new RegExp(listKey.toString());
-                // whereMongo.first = { VALUE: { $regex : regex, $options: 'ix' } };
-                whereMongo.first = {
-                    $text: {
-                        $search: text,
-                        $caseSensitive: false
-                    }
-                };              
+                whereMongo = {
+                        first: {
+                            $text: {
+                                $search: text,
+                                $caseSensitive: false
+                            }
+                        },
+                        retry: {
+                            VALUE: { $regex : regex, $options: 'ix' }
+                        }
+                    };       
             }
             else {
 
