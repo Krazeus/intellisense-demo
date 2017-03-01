@@ -115,7 +115,7 @@ io.on('connection', function (socket) {
                             $meta: "textScore"
                         }
                     }
-                    ).limit(limit || 50);
+                    ).limit(limit || 100);
 
                 data.toArray(function (err, data) {
                     assert.equal(err, null);
@@ -247,7 +247,7 @@ io.on('connection', function (socket) {
             var resultList = mongoQuery(
                 whereMongo,
                 collection,
-                50,
+                100,
                 callback
             );
         };
