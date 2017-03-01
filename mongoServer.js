@@ -51,18 +51,11 @@ var normalize = (function () {
 server.listen(config.port);
 
 app.get('/', function (req, res) {
-    // var indexFile = JSON.parse(fs.readFileSync(__dirname + "/index.html", 'utf8'));
-    // res.sendFile(__dirname + '/index.html');
-    var indexFilePath = __dirname +'/index.html';
-    replace({
-        regex: "{ipAndPort}",
-        replacement: config.ip + ":" + config.port,
-        paths: [indexFilePath],
-        recursive: true,
-        silent: true,
+    var indexFilePath = __dirname + '/index.html';
+    fs.readFile(indexFilePath, 'utf8', function (send, text) {
+        text = text.replace(/{ipAndPort}/g, config.ip + ":" + config.port);
+        res.send(text);
     });
-
-    res.sendFile(indexFilePath);
 });
 
 io.on('connection', function (socket) {
