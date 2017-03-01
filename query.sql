@@ -91,3 +91,11 @@ SELECT A.INTERNALCODE, T.VALUE from MP_ADVANCEDSEARCHCATEGORY  A
 JOIN MP_TRANSLATION T ON A.UUIDLABEL = T.UUIDLABEL
 WHERE T.UUIDLANGUAGE = 'DC376CF4-1ABC-4F91-8F48-9A5DB68A4E8E'
   AND INTERNALCODE = 83
+
+  SELECT 'db.createCollection("R_' + CONVERT(varchar, dbo.FnMD5Hash(UUIDORGANIZATIONNODE + '_' + UUIDMODULE + '_' + UUID, 1000000000)) + '_ES")', 'c:\MongoDB\Data\' + 'R_' + CONVERT(varchar, dbo.FnMD5Hash(UUIDORGANIZATIONNODE + '_' + UUIDMODULE + '_' + UUID, 1000000000)) + '_ES.json', 
+'mongoimport --jsonArray --db config --collection ' + 'R_' + CONVERT(varchar, dbo.FnMD5Hash(UUIDORGANIZATIONNODE + '_' + UUIDMODULE + '_' + UUID, 1000000000)) + '_ES' + ' --file c:\MongoDB\data\' + 'R_' + CONVERT(varchar, dbo.FnMD5Hash(UUIDORGANIZATIONNODE + '_' + UUIDMODULE + '_' + UUID, 1000000000)) + '_ES' + '.json' import,
+'db.' + 'R_' + CONVERT(varchar, dbo.FnMD5Hash(UUIDORGANIZATIONNODE + '_' + UUIDMODULE + '_' + UUID, 1000000000)) + '_ES.createIndex({VALUE: "text"}, {name:"valueIndex", default_language: "spanish"})' createIndex,
+'db.' + 'R_' + CONVERT(varchar, dbo.FnMD5Hash(UUIDORGANIZATIONNODE + '_' + UUIDMODULE + '_' + UUID, 1000000000)) + '_ES.dropIndex("valueIndex")' dropIndex,
+* FROM MP_EVENT
+WHERE UUID IN (SELECT DISTINCT UUIDEVENT FROM MP_DICTIONARY WHERE UUIDEVENT IS NOT NULL)
+ORDER BY CODE ASC

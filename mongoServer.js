@@ -139,6 +139,32 @@ io.on('connection', function (socket) {
             return data;
         },
         /**
+         * @method countQuery description
+         * @param {Object} options  `[]` description
+         * @param {collection} collection  `{}` instance of mongo collection
+         * @return {int} data `0` count of data
+         * @private
+         */
+        countQuery = function (options, collection) {
+            options = options || {};
+            var config = options;
+            var countValue = 0;
+
+            if (collection) {
+                countValue = collection.find(
+                    config, {
+                        VALUE: 1,
+                        TOKEN: 1,
+                        EXPRESSION: 1,
+                        UUID: 1,
+                        INTERNALCODE: 1,
+                        _id: 0
+                    }).count();
+            }
+
+            return countValue;
+        },
+        /**
          * sendQuery ejecuta una consulta en base de dados con una configuracion y una instruccion sql
          * @param {Object} credential  `{ user: '', password: '', server: '', database:'' }` credenciales de autentificacion
          * @param {String} collectionName  `''` Nombre de la colleccion a buscar
@@ -207,8 +233,8 @@ io.on('connection', function (socket) {
             var collection = mongoContext.collection(collectionName);
             var whereMongo = {};
             if (categories.length === 0) {
-                // var listKey = text.split(" ").join("|")
-                // var regex = new RegExp(listKey.toString());
+                var listKey = text.split(" ").join("|")
+                var regex = new RegExp(listKey.toString());
                 // whereMongo = { VALUE: { $regex : regex, $options: 'ix' } };
                 whereMongo = {
                     $text: {
@@ -216,9 +242,15 @@ io.on('connection', function (socket) {
                         $caseSensitive: false
                     }
                 };
+                var cont = countQuery(whereMongo, collection);
+                if (cont === 0) {
+                    whereMongo = {
+                        VALUE: { $regex: regex }
+                    };
+                }
             }
             else {
-                lastCategoryList = categories;
+
                 if (text === "") {
                     whereMongo = {
                         INTERNALCODE: { $in: categories }
@@ -228,9 +260,9 @@ io.on('connection', function (socket) {
                     whereMongo = {
                         INTERNALCODE: { $in: categories },
                         $text: {
-                                    $search: text,
-                                    $caseSensitive: false
-                                }
+                            $search: text,
+                            $caseSensitive: false
+                        }
                     }
                     // whereMongo = {
                     //     $and: [
@@ -256,9 +288,40 @@ io.on('connection', function (socket) {
                     records: data,
                     hasCategory: (categories.length > 0)
                 });
-
             });
         };
+
+
+    // var /**
+    //      * inscripcion description
+    //      * @param {Objecto} usuario  `{}` caracteristicas
+    //      * 
+    //      * @private
+    //      */
+    //     timeout = '15/marzo',
+    //     inscripcion = function (usuario, siInscribe, noInscribe) {
+    //         var error = falso;
+    //         siInscribe = siInscribe || function () { };
+    //         noInscribe = noInscribe || function () { };
+    //         var registro = {}; 0
+    //         if (usuario.completeRequirements) {
+    //             siInscribe(error, registro);
+    //         } else {
+    //             error = true;
+    //             noInscribe(error, null)
+    //         }
+    //         if (timeout) {
+    //             noInscribe(error, null);
+    //         }
+    //     };
+
+    // inscripcion({ nombre: 'Danilo' }, function (err, data) {
+    //     //<debug>
+    //     console.log('inscrito', arguments);
+    //     //</debug>
+    // });
+
+
 
     /**
      * connectMongo description
@@ -271,13 +334,15 @@ io.on('connection', function (socket) {
     socket.on('search', function (data) {
         if (data.value) {
             var search = sendQuery(data.value, "R_" + data.eventValue + "_" + data.lang, data.lang, function (err, result) {
-
+                var isEqual = (!result.records.length && lastCategoryList === categories && (categories.length || lastCategoryList.length))
+                lastCategoryList = categories;
+                
                 socket.emit('hints', {
                     records: (err) ? [] : result.records,
                     success: (err) ? false : true,
                     keyIndex: lastIndex,
                     hasCategory: result.hasCategory,
-                    isEqual: (!result.records.length && lastCategoryList === categories)
+                    isEqual: isEqual
                 });
             });
         }
