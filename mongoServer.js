@@ -221,19 +221,25 @@ io.on('connection', function (socket) {
                     };
                 }
                 else {
-
                     whereMongo = {
-                        $and: [
-                            {
-                                $text: {
+                        INTERNALCODE: { $in: categories },
+                        $text: {
                                     $search: text,
                                     $caseSensitive: false
                                 }
-                            },
-                            // { VALUE: {$regex : '.*' + text + '.*'}},
-                            { INTERNALCODE: { $in: categories } }
-                        ]
-                    };
+                    }
+                    // whereMongo = {
+                    //     $and: [
+                    //         {
+                    //             $text: {
+                    //                 $search: text,
+                    //                 $caseSensitive: false
+                    //             }
+                    //         },
+                    //         // { VALUE: {$regex : '.*' + text + '.*'}},
+                    //         { INTERNALCODE: { $in: categories } }
+                    //     ]
+                    // };
                 }
             }
             var resultList = mongoQuery(
