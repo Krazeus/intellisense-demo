@@ -146,6 +146,7 @@ io.on('connection', function (socket) {
 
         sendQuery = function (text, collectionName, lang, callback) {
             categories = [];
+            text = text.toUpperCase();
 
             if (excludedWordsArray.length === 0) {
                 var Excluded = mongoContext.collection('R_EXCLUDEDWORDS_' + lang);
@@ -193,7 +194,6 @@ io.on('connection', function (socket) {
                 });
             }
 
-            //text = text.toUpperCase();
             text = normalize(text);
             text = text.trim();
 
