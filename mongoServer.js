@@ -100,23 +100,18 @@ io.on('connection', function (socket) {
          * @return {Array} data `[]` array solved
          * @private
          */
-        mongoQuery = function (options, collection, limit, callback) {
+        mongoQuery = function (options, collection, limit, callback, isRetry) {
             options = options || {};
-            var config = options;
+            var config
+            if (isRetry) {
+                config = options.retry
+                options.retry = null;
+            } else {
+                config = options.first;
+            }
             var data = [];
 
-            // if (options.and) {
-            //     config['$and'] = [];
-            //     config[options.logicConnector] = []
-            //     if (options.text) {
-            //         config['$and'].push({
-            //             $text: {
-            //                 $search: options.text
-            //             }
-            //         })
-            //     }
-            // }
-            if (collection) {
+            if (collection && config) {
                 data = collection.find(
                     config, {
                         VALUE: 1,
@@ -134,47 +129,36 @@ io.on('connection', function (socket) {
                         }
                     }
                     ).limit(limit || 50);
-            }
 
-            return data;
-        },
-        /**
-         * @method countQuery description
-         * @param {Object} options  `[]` description
-         * @param {collection} collection  `{}` instance of mongo collection
-         * @return {int} data `0` count of data
-         * @private
-         */
-        countQuery = function (options, collection) {
-            options = options || {};
-            var config = options;
-            var countValue = 0;
-
-            if (collection) {
-                countValue = collection.find(
-                    config, {
-                        VALUE: 1,
-                        TOKEN: 1,
-                        EXPRESSION: 1,
-                        UUID: 1,
-                        INTERNALCODE: 1,
-                        _id: 0
-                    }).count();
-            }
-
-            return countValue;
-        },
+                data.toArray(function (err, data) {
+                    assert.equal(err, null);
+                    if (data.length) {
+                        callback(err, {
+                            records: data,
+                            hasCategory: (categories.length > 0)
+                        });
+                    } else {
+                        mongoQuery(options, collection, limit, callback, true);
+                    }
+                });
+            } else {
+                callback(true, {
+                    records: [],
+                    hasCategory: (categories.length > 0)
+                });
+            }            
+        },      
         /**
          * sendQuery ejecuta una consulta en base de dados con una configuracion y una instruccion sql
          * @param {Object} credential  `{ user: '', password: '', server: '', database:'' }` credenciales de autentificacion
          * @param {String} collectionName  `''` Nombre de la colleccion a buscar
          * @param {String} lang  `''` Lenguaje base
-         * @param {function} calback  `function` handler para respuesta de considencias
+         * @param {function} callback  `function` handler para respuesta de considencias
          * @return {Array} data  `[]`  solved data
          * @private
          */
 
-        sendQuery = function (text, collectionName, lang, calback) {
+        sendQuery = function (text, collectionName, lang, callback) {
             categories = [];
 
             if (excludedWordsArray.length === 0) {
@@ -231,97 +215,51 @@ io.on('connection', function (socket) {
             //quitar articulaciones
 
             var collection = mongoContext.collection(collectionName);
-            var whereMongo = {};
+            var whereMongo = {
+                first: {},
+                retry: null
+            };
+
             if (categories.length === 0) {
                 var listKey = text.split(" ").join("|")
                 var regex = new RegExp(listKey.toString());
-                // whereMongo = { VALUE: { $regex : regex, $options: 'ix' } };
-                whereMongo = {
+                // whereMongo.first = { VALUE: { $regex : regex, $options: 'ix' } };
+                whereMongo.first = {
                     $text: {
                         $search: text,
                         $caseSensitive: false
                     }
-                };
-                var cont = countQuery(whereMongo, collection);
-                if (cont === 0) {
-                    whereMongo = {
-                        VALUE: { $regex: regex }
-                    };
-                }
+                };              
             }
             else {
 
                 if (text === "") {
-                    whereMongo = {
+                    whereMongo.first = {
                         INTERNALCODE: { $in: categories }
                     };
                 }
                 else {
                     whereMongo = {
-                        INTERNALCODE: { $in: categories },
-                        $text: {
-                            $search: text,
-                            $caseSensitive: false
+                        first: {
+                            INTERNALCODE: { $in: categories },
+                            $text: {
+                                $search: text,
+                                $caseSensitive: false
+                            }
+                        },
+                        retry: {
+                            INTERNALCODE: { $in: categories }
                         }
-                    }
-                    // whereMongo = {
-                    //     $and: [
-                    //         {
-                    //             $text: {
-                    //                 $search: text,
-                    //                 $caseSensitive: false
-                    //             }
-                    //         },
-                    //         // { VALUE: {$regex : '.*' + text + '.*'}},
-                    //         { INTERNALCODE: { $in: categories } }
-                    //     ]
-                    // };
+                    };                 
                 }
             }
             var resultList = mongoQuery(
                 whereMongo,
-                collection
-            );
-            resultList.toArray(function (err, data) {
-                assert.equal(err, null);
-                calback(err, {
-                    records: data,
-                    hasCategory: (categories.length > 0)
-                });
-            });
+                collection,
+                50,
+                callback
+            );          
         };
-
-
-    // var /**
-    //      * inscripcion description
-    //      * @param {Objecto} usuario  `{}` caracteristicas
-    //      * 
-    //      * @private
-    //      */
-    //     timeout = '15/marzo',
-    //     inscripcion = function (usuario, siInscribe, noInscribe) {
-    //         var error = falso;
-    //         siInscribe = siInscribe || function () { };
-    //         noInscribe = noInscribe || function () { };
-    //         var registro = {}; 0
-    //         if (usuario.completeRequirements) {
-    //             siInscribe(error, registro);
-    //         } else {
-    //             error = true;
-    //             noInscribe(error, null)
-    //         }
-    //         if (timeout) {
-    //             noInscribe(error, null);
-    //         }
-    //     };
-
-    // inscripcion({ nombre: 'Danilo' }, function (err, data) {
-    //     //<debug>
-    //     console.log('inscrito', arguments);
-    //     //</debug>
-    // });
-
-
 
     /**
      * connectMongo description
@@ -334,9 +272,9 @@ io.on('connection', function (socket) {
     socket.on('search', function (data) {
         if (data.value) {
             var search = sendQuery(data.value, "R_" + data.eventValue + "_" + data.lang, data.lang, function (err, result) {
-                var isEqual = (!result.records.length && lastCategoryList === categories && (categories.length || lastCategoryList.length))
+                var isEqual = (!result.records.length && lastCategoryList === categories);
+
                 lastCategoryList = categories;
-                
                 socket.emit('hints', {
                     records: (err) ? [] : result.records,
                     success: (err) ? false : true,
