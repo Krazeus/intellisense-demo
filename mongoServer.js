@@ -64,8 +64,8 @@ io.on('connection', function (socket) {
     });
 
 
-    var excludedWordsArray = new Array();
-    var synonyms = new Array();
+    var excludedWordsArray = [];
+    var synonyms = [];
 
 
 
@@ -75,14 +75,14 @@ io.on('connection', function (socket) {
                    typeName: 'BLL.Config.EVENT',
                    methodName: 'Invoke'//'allAsync' // Func<object,Task<object>>
                });
-   
+
                var eventsArray = Events('{"uuidOrganizationNode" :"a8842958-7bb6-4493-8a4b-d859c655eef7", "uuidModule":"844288EA-C950-432A-9322-D62A6BFEE579"}');
      */
 
 
     var
         /*
-         * @property {Array} lastCategoryList  `[]` el ultimo listado de categorias consultado 
+         * @property {Array} lastCategoryList  `[]` el ultimo listado de categorias consultado
          */
         lastCategoryList = [],
         /*
@@ -114,8 +114,7 @@ io.on('connection', function (socket) {
             // }
             if (collection) {
                 data = collection.find(
-                    config
-                    , {
+                    config, {
                         VALUE: 1,
                         TOKEN: 1,
                         EXPRESSION: 1,
@@ -140,7 +139,7 @@ io.on('connection', function (socket) {
          * @param {Object} credential  `{ user: '', password: '', server: '', database:'' }` credenciales de autentificacion
          * @param {String} collectionName  `''` Nombre de la colleccion a buscar
          * @param {String} lang  `''` Lenguaje base
-         * @param {function} calback  `function` handler para respuesta de considencias 
+         * @param {function} calback  `function` handler para respuesta de considencias
          * @return {Array} data  `[]`  solved data
          * @private
          */
@@ -148,11 +147,11 @@ io.on('connection', function (socket) {
         sendQuery = function (text, collectionName, lang, calback) {
             categories = [];
 
-            if (excludedWordsArray.length == 0) {
+            if (excludedWordsArray.length === 0) {
                 var Excluded = mongoContext.collection('R_EXCLUDEDWORDS_' + lang);
                 Excluded.find({}, { _id: 0, VALUE: 1 }).toArray(function (err, result) {
-                    var i, count;
-                    for (i = 0, count = result.length; i < count; i++) {
+                    var count = result.length;
+                    for (var i = 0; i < count; i++) {
                         excludedWordsArray.push(result[i].VALUE.toString());
                     }
                     return excludedWordsArray;
@@ -163,7 +162,7 @@ io.on('connection', function (socket) {
                     var a1 = text.substring(0, excludedWordsArray[i].length + 1);
                     var a2 = excludedWordsArray[i].toString() + " ";
                     if (a1 === a2)
-                        text = text.substring(excludedWordsArray[i].toString().length + 1, text.length)
+                        text = text.substring(excludedWordsArray[i].toString().length + 1, text.length);
 
                     text = text.replace(" " + excludedWordsArray[i].toString() + " ", " ");
                 }
@@ -173,14 +172,13 @@ io.on('connection', function (socket) {
             if (synonyms.length === 0) {
                 var synonymsContext = mongoContext.collection('R_SYNONYMS_' + lang);
                 synonymsContext.find({}, { _id: 0, INTERNALCODE: 1, VALUE: 1 }).toArray(function (err, resultSyn) {
-                    var i, count;
-                    for (i = 0, count = resultSyn.length; i < count; i++) {
+                    var count = resultSyn.length;
+                    for (var i = 0; i < count; i++) {
                         synonyms.push(resultSyn[i]);
                     }
                     return synonyms;
                 });
-            }
-            else {
+            } else {
                 for (var i = 0; i < synonyms.length; i++) {
                     if (text.includes(synonyms[i].VALUE.toString())) {
                         categories.push(synonyms[i].INTERNALCODE);
@@ -216,8 +214,8 @@ io.on('connection', function (socket) {
                 };
             }
             else {
-                lastCategoryList = categories
-                if (text == "") {
+                lastCategoryList = categories;
+                if (text === "") {
                     whereMongo = {
                         INTERNALCODE: { $in: categories }
                     };
