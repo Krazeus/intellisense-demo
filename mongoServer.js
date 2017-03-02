@@ -262,7 +262,9 @@ io.on('connection', function (socket) {
     });
     socket.on('field', function (data) {
         if (data.value) {
-            var search = sendQuery(data.value, "R_" + data.eventValue + "_" + data.lang, data.lang, function (err, result) {
+            var uid = [];
+            uid = data.eventValue.split("-");
+            var search = sendQuery(data.value, "R_" + uid.join("") + "_" + data.lang, data.lang, function (err, result) {
                 var isEqual = (!result.records.length && lastCategoryList === categories);
 
                 lastCategoryList = categories;
