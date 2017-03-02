@@ -261,6 +261,9 @@ io.on('connection', function (socket) {
         mongoContext.close();
     });
     socket.on('field', function (data) {
+        //<debug>
+        console.log('field', data.value);
+        //</debug>
         if (data.value) {
             var search = sendQuery(data.value, "R_" + data.eventValue.replace("-", "") + "_" + data.lang, data.lang, function (err, result) {
                 var isEqual = (!result.records.length && lastCategoryList === categories);
@@ -281,6 +284,9 @@ io.on('connection', function (socket) {
      * implementar el siguiente codigo
      */
     socket.on("operator", function (data) {
+        //<debug>
+        console.log('operator', data.value);
+        //</debug>
         if (data.value) {
             var search = sendQuery(data.value, "R_ARITHMETICOPERATOR_" + data.lang, data.lang, function (err, result) {
                 // var isEqual = (!result.records.length && lastCategoryList === categories);
@@ -298,6 +304,9 @@ io.on('connection', function (socket) {
         }
     });
     socket.on("connector", function (data) {
+        //<debug>
+        console.log('connector', data.value);
+        //</debug>
         if (data.value) {
             var search = sendQuery(data.value, "R_LOGICALOPERATOR_" + data.lang, data.lang, function (err, result) {
                 // var isEqual = (!result.records.length && lastCategoryList === categories);
