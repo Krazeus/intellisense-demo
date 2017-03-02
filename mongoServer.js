@@ -265,7 +265,7 @@ io.on('connection', function (socket) {
         console.log('field', data.value);
         //</debug>
         if (data.value) {
-            var search = sendQuery(data.value, "R_" + data.eventValue.replace("-", "") + "_" + data.lang, data.lang, function (err, result) {
+            var search = sendQuery(data.value, "R_" + data.eventValue.replace(/-/g, "") + "_" + data.lang, data.lang, function (err, result) {
                 var isEqual = (!result.records.length && lastCategoryList === categories);
 
                 lastCategoryList = categories;
