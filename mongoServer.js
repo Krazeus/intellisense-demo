@@ -260,7 +260,7 @@ io.on('connection', function (socket) {
     socket.on('disconnect', function (data) {
         mongoContext.close();
     });
-    socket.on('search', function (data) {
+    socket.on('field', function (data) {
         if (data.value) {
             var search = sendQuery(data.value, "R_" + data.eventValue + "_" + data.lang, data.lang, function (err, result) {
                 var isEqual = (!result.records.length && lastCategoryList === categories);
@@ -271,7 +271,8 @@ io.on('connection', function (socket) {
                     success: (err) ? false : true,
                     keyIndex: lastIndex,
                     hasCategory: result.hasCategory,
-                    isEqual: isEqual
+                    isEqual: isEqual,
+                    type: 'field'
                 });
             });
         }
@@ -279,37 +280,38 @@ io.on('connection', function (socket) {
     /*!
      * implementar el siguiente codigo
      */
-    socket.on("conector", function (data) {
-        if (data.value) {
-            var search = sendQuery(data.value, "R_ARITHMETICOPERATOR_" + data.lang, data.lang, function (err, result) {
-                var isEqual = (!result.records.length && lastCategoryList === categories);
-
-                lastCategoryList = categories;
-                socket.emit('hints', {
-                    records: (err) ? [] : result.records,
-                    success: (err) ? false : true,
-                    keyIndex: lastIndex,
-                    hasCategory: result.hasCategory,
-                    isEqual: isEqual
-                });
-            });
-        }
-    });
     socket.on("operator", function (data) {
         if (data.value) {
-            var search = sendQuery(data.value, "R_LOGICALOPERATOR_" + data.lang, data.lang, function (err, result) {
-                var isEqual = (!result.records.length && lastCategoryList === categories);
+            var search = sendQuery(data.value, "R_ARITHMETICOPERATOR_" + data.lang, data.lang, function (err, result) {
+                // var isEqual = (!result.records.length && lastCategoryList === categories);
 
-                lastCategoryList = categories;
+                // lastCategoryList = categories;
                 socket.emit('hints', {
                     records: (err) ? [] : result.records,
                     success: (err) ? false : true,
                     keyIndex: lastIndex,
                     hasCategory: result.hasCategory,
-                    isEqual: isEqual
+                    isEqual: false,
+                    type: 'operator'
                 });
             });
         }
     });
+    socket.on("connector", function (data) {
+        if (data.value) {
+            var search = sendQuery(data.value, "R_LOGICALOPERATOR_" + data.lang, data.lang, function (err, result) {
+                // var isEqual = (!result.records.length && lastCategoryList === categories);
 
+                // lastCategoryList = categories;
+                socket.emit('hints', {
+                    records: (err) ? [] : result.records,
+                    success: (err) ? false : true,
+                    keyIndex: lastIndex,
+                    hasCategory: result.hasCategory,
+                    isEqual: false,
+                    type: 'connector'
+                });
+            });
+        }
+    });
 });
