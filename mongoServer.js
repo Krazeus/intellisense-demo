@@ -276,4 +276,32 @@ io.on('connection', function (socket) {
             });
         }
     });
+    /*!
+     * implementar el siguiente codigo
+     */
+    socket.on("conectors", function (data) {
+        /*!
+         *  TODO: devolver listado de conectores
+         */
+        // socket.emit('hints', {
+        //     records: (err) ? [] : result.records,
+        //     success: (err) ? false : true,
+        //     keyIndex: lastIndex,
+        //     hasCategory: result.hasCategory,
+        //     isEqual: isEqual
+        // });
+    });
+    socket.on("operators", function (data) {
+        /*!
+         *  TODO: devolver listado de operadores logicos
+         */
+        // socket.emit('hints', {
+        //     records: (err) ? [] : result.records,
+        //     success: (err) ? false : true,
+        //     keyIndex: lastIndex,
+        //     hasCategory: result.hasCategory,
+        //     isEqual: isEqual
+        // });
+    });
+
 });
