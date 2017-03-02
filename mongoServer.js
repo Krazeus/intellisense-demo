@@ -280,30 +280,36 @@ io.on('connection', function (socket) {
      * implementar el siguiente codigo
      */
     socket.on("conector", function (data) {
-        var data = data || {};
-        /*!
-         *  TODO: devolver listado de conectores
-         */
-        // socket.emit('hints', {
-        //     records: (err) ? [] : result.records,
-        //     success: (err) ? false : true,
-        //     keyIndex: lastIndex,
-        //     hasCategory: result.hasCategory,
-        //     isEqual: isEqual
-        // });
+        if (data.value) {
+            var search = sendQuery(data.value, "R_ARITHMETICOPERATOR_" + data.lang, data.lang, function (err, result) {
+                var isEqual = (!result.records.length && lastCategoryList === categories);
+
+                lastCategoryList = categories;
+                socket.emit('hints', {
+                    records: (err) ? [] : result.records,
+                    success: (err) ? false : true,
+                    keyIndex: lastIndex,
+                    hasCategory: result.hasCategory,
+                    isEqual: isEqual
+                });
+            });
+        }
     });
     socket.on("operator", function (data) {
-        var data = data || {};
-        /*!
-         *  TODO: devolver listado de operadores logicos
-         */
-        // socket.emit('hints', {
-        //     records: (err) ? [] : result.records,
-        //     success: (err) ? false : true,
-        //     keyIndex: lastIndex,
-        //     hasCategory: result.hasCategory,
-        //     isEqual: isEqual
-        // });
+        if (data.value) {
+            var search = sendQuery(data.value, "R_LOGICALOPERATOR_" + data.lang, data.lang, function (err, result) {
+                var isEqual = (!result.records.length && lastCategoryList === categories);
+
+                lastCategoryList = categories;
+                socket.emit('hints', {
+                    records: (err) ? [] : result.records,
+                    success: (err) ? false : true,
+                    keyIndex: lastIndex,
+                    hasCategory: result.hasCategory,
+                    isEqual: isEqual
+                });
+            });
+        }
     });
 
 });
