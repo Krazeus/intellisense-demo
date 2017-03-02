@@ -279,7 +279,8 @@ io.on('connection', function (socket) {
     /*!
      * implementar el siguiente codigo
      */
-    socket.on("conectors", function (data) {
+    socket.on("conector", function (data) {
+        var data = data || {};
         /*!
          *  TODO: devolver listado de conectores
          */
@@ -291,7 +292,8 @@ io.on('connection', function (socket) {
         //     isEqual: isEqual
         // });
     });
-    socket.on("operators", function (data) {
+    socket.on("operator", function (data) {
+        var data = data || {};
         /*!
          *  TODO: devolver listado de operadores logicos
          */
