@@ -6,15 +6,16 @@
         float: left;
         background-color: lightblue;
     }
-
-
-
     .result {
-        height: 500px;
+        height: 400px;
         width: 500px;
         float: right;
         background-color: lightgreen;
         overflow: scroll;
+    }
+    .configurations {
+        display: table;
+        padding: 5px;
     }
 </style>
 <script>
@@ -30,14 +31,26 @@
 
         socket.on("hints", function (data) {
             data = data || {};
-            if (!data.isEqual) {
-                renderData(data);
+            // if (!data.isEqual) {
+            renderData(data);
+            // }
+        });
+
+        socket.on("categories", function (categories) {
+            categories = categories || [];
+
+            for (var index = 0; index < categories.length; index++) {
+                var element = categories[index];
+                var li = document.createElement("li");
+                li.appendChild(document.createTextNode("[" + element.INTERNALCODE + "] " + element.VALUE));
+                categoryElement.appendChild(li);
             }
         });
 
         var resultElement = document.getElementsByClassName("results")[0],
             blackboradElement = document.getElementById("editor"),
-            indexElement = document.getElementById('index'),
+            modeSeachElement = document.getElementById('modesearch'),
+            categoryElement = document.getElementById("categorylist"),
             findTypeElement = document.getElementById("hinttype");
         /**
         * renderData dibujar los resultados
@@ -61,7 +74,7 @@
                 //var final = highlighter(element.v, lastValue);
                 var final = wrapInTag(element.VALUE, lastValue);
                 //wrapInTag
-                results += '<li>' + final + '</li>';
+                results += '<li>[' + element.INTERNALCODE + '] ' + final + '</li>';
             }
             resultElement.innerHTML = results;
         },
@@ -78,7 +91,6 @@
                     findTypeElement.value,
                     {
                         value: value,
-                        index: indexElement.value,
                         eventValue: "0E45E63F-AA19-44E1-9DBF-DC3EB702D113",
                         lang: "ES"
                     });
@@ -125,24 +137,28 @@
 
 </script>
 <!--<div class="blackboard" contenteditable="true"></div>-->
+<h1> Monitor Intellisense - Module </h1>
 <textarea id="editor" rows="12" cols="80"></textarea>
 <div class="result">
     <ol class="results"> </ol>
 </div>
 <div class="total"></div>
-<label for="index">No. Index:</label>
-<select id="index">
-  <option value="1">1</option>
-  <option value="2">2</option>
-  <option value="3">3</option>
-  <option value="4">4</option>
-</select>
-
-<label for="index">type:</label>
-<select id="hinttype">
+<div class="configurations">
+    <label for="hinttype">Buscar</label>
+    <select id="hinttype">
   <option value="field">Field</option>
   <option value="operator">Opradores</option>
   <option value="connector">Conectores</option>
-</select>
+</select> <br>
 
-<button onclick="searchOnWebService"> call rest </button>
+    <label for="modesearch">Modo de busqueda</label>
+    <select id="modesearch">
+  <option value="ontyping">en linea</option>
+  <option value="onpause">en pausa</option>
+</select> <br>
+
+    <br><label> Categorias </label>
+    <div class="result">
+        <ul id="categorylist"></ul>
+    </div>
+</div>

@@ -65,6 +65,7 @@ io.on('connection', function (socket) {
         console.log("Connected correctly to server");
         mongoContext = db;
     });
+
     socket.emit('categories', categoryList);
     // socket.emit('datatype', )
 
@@ -72,6 +73,24 @@ io.on('connection', function (socket) {
     var synonyms = [];
 
     var
+        /**
+         * castCategories conver y agregar una propiedad de peso en base a las palabras del nombre de la categoria
+         * @param {Array} categoryList  `[]` una lista de categorias.
+         * @private
+         */
+        castCategories = function (categoryList) {
+            categoryList = categoryList || [];
+            categoryList.forEach(function (cat, index) {
+                var value = cat.VALUE.replace(/\./g, ' ').trim();
+                var counter = value.match(/\s/g) || [];
+                cat.WEIGHT = counter.length + 1;
+            });
+
+            categoryList.sort(function (catA, catB) {
+                return catB.WEIGHT - catA.WEIGHT;
+            });
+            return categoryList;
+        },
         /*
          * @property {Array} lastCategoryList  `[]` el ultimo listado de categorias consultado
          */
@@ -179,10 +198,18 @@ io.on('connection', function (socket) {
             if (synonyms.length === 0) {
                 var synonymsContext = mongoContext.collection('R_SYNONYMS_' + lang);
                 synonymsContext.find({}, { _id: 0, INTERNALCODE: 1, VALUE: 1 }).toArray(function (err, resultSyn) {
+                    /**
+                     * Tmportal
+                     */
+                    castCategories(resultSyn);
+                    /**
+                     * fin temporal
+                     */
                     var count = resultSyn.length;
-                    for (var i = 0; i < count; i++) {
-                        synonyms.push(resultSyn[i]);
-                    }
+                    // for (var i = 0; i < count; i++) {
+                    //     synonyms.push(resultSyn[i]);
+                    // }
+                    synonyms = resultSyn;
                     return synonyms;
                 });
             } else {
@@ -203,7 +230,7 @@ io.on('connection', function (socket) {
             text = normalize(text);
             text = text.trim();
 
-            console.log("text search", text, categories);
+            console.log("searching:", text, categories);
             //quitar articulaciones
 
             var collection = mongoContext.collection(collectionName);
@@ -276,10 +303,12 @@ io.on('connection', function (socket) {
         mongoContext.close();
     });
     socket.on('field', function (data) {
+        //<debug>
+        console.log('field', data.value);
+        //</debug>
         if (data.value) {
-            var uid = [];
-            uid = data.eventValue.split("-");
-            var search = sendQuery(data.value, "R_" + uid.join("") + "_" + data.lang, data.lang, function (err, result) {
+            var search = sendQuery(data.value, "R_" + data.eventValue.replace(/-/g, "") + "_" + data.lang, data.lang, function (err, result) {
+
                 var isEqual = (!result.records.length && lastCategoryList === categories);
 
                 lastCategoryList = categories;
@@ -300,6 +329,11 @@ io.on('connection', function (socket) {
      * implementar el siguiente codigo
      */
     socket.on("operator", function (data) {
+        //  =>, <, =
+
+        //<debug>
+        console.log('operator', data.value);
+        //</debug>
         if (data.value) {
             var search = sendQuery(data.value, "R_ARITHMETICOPERATOR_" + data.lang, data.lang, 2, function (err, result) {
                 // var isEqual = (!result.records.length && lastCategoryList === categories);
@@ -317,6 +351,11 @@ io.on('connection', function (socket) {
         }
     });
     socket.on("connector", function (data) {
+        // and, or, not
+
+        //<debug>
+        console.log('connector', data.value);
+        //</debug>
         if (data.value) {
             var search = sendQuery(data.value, "R_LOGICALOPERATOR_" + data.lang, data.lang, 2, function (err, result) {
                 // var isEqual = (!result.records.length && lastCategoryList === categories);
@@ -325,7 +364,7 @@ io.on('connection', function (socket) {
                 socket.emit('hints', {
                     records: (err) ? [] : result.records,
                     success: (err) ? false : true,
-                    keyIndex: lastIndex,
+                    // keyIndex: lastIndex,
                     hasCategory: result.hasCategory,
                     isEqual: false,
                     type: 'connector'
