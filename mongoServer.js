@@ -65,6 +65,11 @@ io.on('connection', function (socket) {
         console.log("Connected correctly to server");
         mongoContext = db;
     });
+
+
+    //<debug>
+    console.log('categoryList', categoryList);
+    //</debug>
     socket.emit('categories', categoryList);
     // socket.emit('datatype', )
 
@@ -72,6 +77,24 @@ io.on('connection', function (socket) {
     var synonyms = [];
 
     var
+        /**
+         * castCategories conver y agregar una propiedad de peso en base a las palabras del nombre de la categoria
+         * @param {Array} categoryList  `[]` una lista de categorias.
+         * @private
+         */
+        castCategories = function (categoryList) {
+            categoryList = categoryList || [];
+            categoryList.forEach(function (cat, index) {
+                var value = cat.VALUE.replace(/\./g, ' ').trim();
+                var counter = value.match(/\s/g) || [];
+                cat.WEIGHT = counter.length + 1;
+            });
+
+            categoryList.sort(function (catA, catB) {
+                return catB.WEIGHT - catA.WEIGHT
+            });
+            return categoryList;
+        },
         /*
          * @property {Array} lastCategoryList  `[]` el ultimo listado de categorias consultado
          */
@@ -174,10 +197,18 @@ io.on('connection', function (socket) {
             if (synonyms.length === 0) {
                 var synonymsContext = mongoContext.collection('R_SYNONYMS_' + lang);
                 synonymsContext.find({}, { _id: 0, INTERNALCODE: 1, VALUE: 1 }).toArray(function (err, resultSyn) {
+                    /**
+                     * Tmportal 
+                     */
+                    castCategories(resultSyn);
+                    /**
+                     * fin temporal 
+                     */
                     var count = resultSyn.length;
-                    for (var i = 0; i < count; i++) {
-                        synonyms.push(resultSyn[i]);
-                    }
+                    // for (var i = 0; i < count; i++) {
+                    //     synonyms.push(resultSyn[i]);
+                    // }
+                    synonyms = resultSyn;
                     return synonyms;
                 });
             } else {

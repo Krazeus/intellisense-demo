@@ -6,6 +6,9 @@
         float: left;
         background-color: lightblue;
     }
+
+
+
     .result {
         height: 500px;
         width: 500px;
@@ -32,9 +35,17 @@
             }
         });
 
+        socket.on("categories", function (categories) {
+            //<debug>
+            // console.log( JSON.stringify(categories));
+            //</debug>
+
+        });
+
         var resultElement = document.getElementsByClassName("results")[0],
             blackboradElement = document.getElementById("editor"),
             indexElement = document.getElementById('index'),
+            typeSeachElement = document.getElementById(''),
             findTypeElement = document.getElementById("hinttype");
         /**
         * renderData dibujar los resultados
