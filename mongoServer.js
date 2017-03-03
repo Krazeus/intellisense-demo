@@ -141,12 +141,17 @@ io.on('connection', function (socket) {
          * @param {String} collectionName  `''` Nombre de la colleccion a buscar
          * @param {String} lang  `''` Lenguaje base
          * @param {function} callback  `function` handler para respuesta de considencias
+         * @param {Object} options  `{}` objeto opcional para configurar modalidades extendidas
+         *      {
+         *          allData {Boolean} `false || null` si es verdadero retorna toda la data en la coleccion
+         *       }
          * @return {Array} data  `[]`  solved data
          * @private
          */
 
-        sendQuery = function (text, collectionName, lang, callback) {
+        sendQuery = function (text, collectionName, lang, callback, options) {
             categories = [];
+            options = options || {};
             text = text.toUpperCase();
 
             if (excludedWordsArray.length === 0) {
@@ -210,17 +215,27 @@ io.on('connection', function (socket) {
             if (categories.length === 0) {
                 var listKey = text.split(" ").join("|");
                 var regex = new RegExp(listKey.toString());
-                whereMongo = {
-                    first: {
-                        $text: {
-                            $search: text,
-                            $caseSensitive: false
+                if (options.allData) {
+                    whereMongo = {
+                        first: {
+                            VALUE: { $regex: regex, $options: 'ix' }
+                        },
+                        retry: {}
+                    };
+                }
+                else {
+                    whereMongo = {
+                        first: {
+                            $text: {
+                                $search: text,
+                                $caseSensitive: false
+                            }
+                        },
+                        retry: {
+                            VALUE: { $regex: regex, $options: 'ix' }
                         }
-                    },
-                    retry: {
-                        VALUE: { $regex: regex, $options: 'ix' }
-                    }
-                };
+                    };
+                }
             }
             else {
 
@@ -265,7 +280,7 @@ io.on('connection', function (socket) {
             var uid = [];
             uid = data.eventValue.split("-");
             var search = sendQuery(data.value, "R_" + uid.join("") + "_" + data.lang, data.lang, function (err, result) {
-            var isEqual = (!result.records.length && lastCategoryList === categories);
+                var isEqual = (!result.records.length && lastCategoryList === categories);
 
                 lastCategoryList = categories;
                 socket.emit('hints', {
@@ -276,7 +291,9 @@ io.on('connection', function (socket) {
                     isEqual: isEqual,
                     type: 'field'
                 });
-            });
+            }, {
+                    allData: true
+                });
         }
     });
     /*!
@@ -284,7 +301,7 @@ io.on('connection', function (socket) {
      */
     socket.on("operator", function (data) {
         if (data.value) {
-            var search = sendQuery(data.value, "R_ARITHMETICOPERATOR_" + data.lang, data.lang, function (err, result) {
+            var search = sendQuery(data.value, "R_ARITHMETICOPERATOR_" + data.lang, data.lang, 2, function (err, result) {
                 // var isEqual = (!result.records.length && lastCategoryList === categories);
 
                 // lastCategoryList = categories;
@@ -301,7 +318,7 @@ io.on('connection', function (socket) {
     });
     socket.on("connector", function (data) {
         if (data.value) {
-            var search = sendQuery(data.value, "R_LOGICALOPERATOR_" + data.lang, data.lang, function (err, result) {
+            var search = sendQuery(data.value, "R_LOGICALOPERATOR_" + data.lang, data.lang, 2, function (err, result) {
                 // var isEqual = (!result.records.length && lastCategoryList === categories);
 
                 // lastCategoryList = categories;
@@ -313,7 +330,9 @@ io.on('connection', function (socket) {
                     isEqual: false,
                     type: 'connector'
                 });
-            });
+            }, {
+                    allData: true
+                });
         }
     });
 });
