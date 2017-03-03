@@ -66,10 +66,6 @@ io.on('connection', function (socket) {
         mongoContext = db;
     });
 
-
-    //<debug>
-    console.log('categoryList', categoryList);
-    //</debug>
     socket.emit('categories', categoryList);
     // socket.emit('datatype', )
 
@@ -91,7 +87,7 @@ io.on('connection', function (socket) {
             });
 
             categoryList.sort(function (catA, catB) {
-                return catB.WEIGHT - catA.WEIGHT
+                return catB.WEIGHT - catA.WEIGHT;
             });
             return categoryList;
         },
@@ -198,11 +194,11 @@ io.on('connection', function (socket) {
                 var synonymsContext = mongoContext.collection('R_SYNONYMS_' + lang);
                 synonymsContext.find({}, { _id: 0, INTERNALCODE: 1, VALUE: 1 }).toArray(function (err, resultSyn) {
                     /**
-                     * Tmportal 
+                     * Tmportal
                      */
-t                    castCategories(resultSyn);
+                    castCategories(resultSyn);
                     /**
-                     * fin temporal 
+                     * fin temporal
                      */
                     var count = resultSyn.length;
                     // for (var i = 0; i < count; i++) {
@@ -350,7 +346,7 @@ t                    castCategories(resultSyn);
                 socket.emit('hints', {
                     records: (err) ? [] : result.records,
                     success: (err) ? false : true,
-                    keyIndex: lastIndex,
+                    // keyIndex: lastIndex,
                     hasCategory: result.hasCategory,
                     isEqual: false,
                     type: 'connector'
