@@ -200,7 +200,7 @@ io.on('connection', function (socket) {
                     /**
                      * Tmportal 
                      */
-                    castCategories(resultSyn);
+t                    castCategories(resultSyn);
                     /**
                      * fin temporal 
                      */
