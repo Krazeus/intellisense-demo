@@ -6,6 +6,7 @@
         float: left;
         background-color: lightblue;
     }
+
     .result {
         height: 400px;
         width: 500px;
@@ -13,6 +14,7 @@
         background-color: lightgreen;
         overflow: scroll;
     }
+
     .configurations {
         display: table;
         padding: 5px;
@@ -47,10 +49,11 @@
             }
         });
 
-        var resultElement = document.getElementsByClassName("results")[0],
+        var resultElement = document.getElementById("hintresults"),
             blackboradElement = document.getElementById("editor"),
             modeSeachElement = document.getElementById('modesearch'),
             categoryElement = document.getElementById("categorylist"),
+            recordIdElement = document.getElementById("recordid"),
             findTypeElement = document.getElementById("hinttype");
         /**
         * renderData dibujar los resultados
@@ -91,7 +94,7 @@
                     findTypeElement.value,
                     {
                         value: value,
-                        eventValue: "0E45E63F-AA19-44E1-9DBF-DC3EB702D113",
+                        eventValue: recordIdElement.value,
                         lang: "ES"
                     });
             },
@@ -107,7 +110,6 @@
             };
 
         wrapInTag = function (item, text) {
-            //text = text.replace(/[\-\[\]{}()*+?.,\\\^$|#\s]/g, '\\$&');//Se reemplaza en la normalizacion
             var tag = 'strong',
                 words = text.split(" ") || [],
                 regex = RegExp(words.join('|'), 'gi'),
@@ -125,12 +127,14 @@
             })
         }
         blackboradElement.onkeyup = function () {
-            var value = this.value;
+            var value = this.value || '';
             if (value) {
                 //<debug>
                 console.log('search', value);
                 //</debug>
                 searchValue(value);
+            } else {
+                resultElement.innerHTML = '';
             }
         };
     }, true);
@@ -140,7 +144,7 @@
 <h1> Monitor Intellisense - Module </h1>
 <textarea id="editor" rows="12" cols="80"></textarea>
 <div class="result">
-    <ol class="results"> </ol>
+    <ol id="hintresults"> </ol>
 </div>
 <div class="total"></div>
 <div class="configurations">
@@ -157,7 +161,10 @@
   <option value="onpause">en pausa</option>
 </select> <br>
 
-    <br><label> Categorias </label>
+    <label for="recordid">Record ID</label>
+    <input type="text" id="recordid" value="0E45E63F-AA19-44E1-9DBF-DC3EB702D113">
+
+    <br><label> Categorias </label> <br>
     <div class="result">
         <ul id="categorylist"></ul>
     </div>

@@ -6,6 +6,7 @@
 var app = require('express')();
 var server = require('http').Server(app);
 var io = require('socket.io')(server);
+var merge = require('merge');
 var fs = require('fs');
 var replace = require('replace');
 var config = JSON.parse(fs.readFileSync('config/default.json', 'utf8'));
@@ -66,7 +67,7 @@ io.on('connection', function (socket) {
         mongoContext = db;
     });
 
-    socket.emit('categories', categoryList);
+    // socket.emit('categories', categoryList);
     // socket.emit('datatype', )
 
     var excludedWordsArray = [];
@@ -163,6 +164,7 @@ io.on('connection', function (socket) {
          * @param {Object} options  `{}` objeto opcional para configurar modalidades extendidas
          *      {
          *          allData {Boolean} `false || null` si es verdadero retorna toda la data en la coleccion
+         *          firstCategory {Boolean}  `true` solo devuelve la primer categoria encontrada
          *       }
          * @return {Array} data  `[]`  solved data
          * @private
@@ -171,10 +173,20 @@ io.on('connection', function (socket) {
         sendQuery = function (text, collectionName, lang, callback, options) {
             categories = [];
             options = options || {};
+
+            options = merge({
+                allData: false,
+                firstCategory: true,
+            }, options);
+
+            text = normalize(text);
+            text = text.trim();
             text = text.toUpperCase();
+            //<debug>
+            console.log('input', text);
+            //</debug>
 
-
-        if (synonyms.length === 0) {
+            if (synonyms.length === 0) {
                 var synonymsContext = mongoContext.collection('R_SYNONYMS_' + lang);
                 synonymsContext.find({}, { _id: 0, INTERNALCODE: 1, VALUE: 1 }).toArray(function (err, resultSyn) {
                     /**
@@ -184,11 +196,9 @@ io.on('connection', function (socket) {
                     /**
                      * fin temporal
                      */
-                    var count = resultSyn.length;
-                    // for (var i = 0; i < count; i++) {
-                    //     synonyms.push(resultSyn[i]);
-                    // }
+                    // var count = resultSyn.length;
                     synonyms = resultSyn;
+                    socket.emit("categories", synonyms);
                     return synonyms;
                 });
             } else {
@@ -199,7 +209,7 @@ io.on('connection', function (socket) {
                     }
                 }
             }
-            
+
             if (excludedWordsArray.length === 0) {
                 var Excluded = mongoContext.collection('R_EXCLUDEDWORDS_' + lang);
                 Excluded.find({}, { _id: 0, VALUE: 1 }).toArray(function (err, result) {
@@ -227,12 +237,15 @@ io.on('connection', function (socket) {
                 });
             }
 
-            text = normalize(text);
-            text = text.trim();
+
 
             console.log("searching:", text, categories);
-            //quitar articulaciones
 
+            // if (options.firstCategory && categories.length > 1) {
+            //     categories = categories[0];
+            // }
+
+            //quitar articulaciones
             var collection = mongoContext.collection(collectionName);
             var whereMongo = {
                 first: {},
