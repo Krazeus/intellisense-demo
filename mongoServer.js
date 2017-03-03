@@ -173,29 +173,8 @@ io.on('connection', function (socket) {
             options = options || {};
             text = text.toUpperCase();
 
-            if (excludedWordsArray.length === 0) {
-                var Excluded = mongoContext.collection('R_EXCLUDEDWORDS_' + lang);
-                Excluded.find({}, { _id: 0, VALUE: 1 }).toArray(function (err, result) {
-                    var count = result.length;
-                    for (var i = 0; i < count; i++) {
-                        excludedWordsArray.push(result[i].VALUE.toString());
-                    }
-                    return excludedWordsArray;
-                });
-            }
-            else {
-                for (var i = 0; i < excludedWordsArray.length; i++) {
-                    var a1 = text.substring(0, excludedWordsArray[i].length + 1);
-                    var a2 = excludedWordsArray[i].toString() + " ";
-                    if (a1 === a2)
-                        text = text.substring(excludedWordsArray[i].toString().length + 1, text.length);
 
-                    text = text.replace(" " + excludedWordsArray[i].toString() + " ", " ");
-                }
-            }
-
-
-            if (synonyms.length === 0) {
+        if (synonyms.length === 0) {
                 var synonymsContext = mongoContext.collection('R_SYNONYMS_' + lang);
                 synonymsContext.find({}, { _id: 0, INTERNALCODE: 1, VALUE: 1 }).toArray(function (err, resultSyn) {
                     /**
@@ -218,6 +197,27 @@ io.on('connection', function (socket) {
                         categories.push(synonyms[i].INTERNALCODE);
                         text = text.replace(synonyms[i].VALUE.toString(), "");
                     }
+                }
+            }
+            
+            if (excludedWordsArray.length === 0) {
+                var Excluded = mongoContext.collection('R_EXCLUDEDWORDS_' + lang);
+                Excluded.find({}, { _id: 0, VALUE: 1 }).toArray(function (err, result) {
+                    var count = result.length;
+                    for (var i = 0; i < count; i++) {
+                        excludedWordsArray.push(result[i].VALUE.toString());
+                    }
+                    return excludedWordsArray;
+                });
+            }
+            else {
+                for (var i = 0; i < excludedWordsArray.length; i++) {
+                    var a1 = text.substring(0, excludedWordsArray[i].length + 1);
+                    var a2 = excludedWordsArray[i].toString() + " ";
+                    if (a1 === a2)
+                        text = text.substring(excludedWordsArray[i].toString().length + 1, text.length);
+
+                    text = text.replace(" " + excludedWordsArray[i].toString() + " ", " ");
                 }
             }
 
@@ -320,9 +320,7 @@ io.on('connection', function (socket) {
                     isEqual: isEqual,
                     type: 'field'
                 });
-            }, {
-                    allData: true
-                });
+            });
         }
     });
     /*!
@@ -347,7 +345,9 @@ io.on('connection', function (socket) {
                     isEqual: false,
                     type: 'operator'
                 });
-            });
+            }, {
+                    allData: true
+                });
         }
     });
     socket.on("connector", function (data) {
