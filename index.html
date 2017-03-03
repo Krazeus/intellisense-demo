@@ -1,19 +1,15 @@
 <script src="http://{ipAndPort}/socket.io/socket.io.js"></script>
 <style>
-    .blackboard {
-        height: 500px;
-        width: 500px;
-        float: left;
-        background-color: lightblue;
-    }
-
     .result {
-        height: 400px;
-        width: 500px;
-        float: right;
+        height: 350px;
+        width: 50%;
+        float: left;
         background-color: lightgreen;
         overflow: scroll;
     }
+
+
+
 
     .configurations {
         display: table;
@@ -54,30 +50,39 @@
             modeSeachElement = document.getElementById('modesearch'),
             categoryElement = document.getElementById("categorylist"),
             recordIdElement = document.getElementById("recordid"),
+            summaryElement = document.getElementById("requestsummary"),
             findTypeElement = document.getElementById("hinttype");
+
         /**
         * renderData dibujar los resultados
         * @private
         */
         renderData = function (data) {
             rawdata = data.records || [];
-            //<debug>
+
 
             var times = new Date().getTime() - sendData;
-            console.log('records:', rawdata.length, 'time (ms):', times);
-            //</debug>
-            var results = '';
 
-            // resultElement.innerHTML = '';
+            var summary = 'Tuplas: ' + rawdata.length + '  Tiempo (ms): ' + times;
 
-            var rawdata = rawdata || [];
-            var length = rawdata.length > 100 ? 100 : rawdata.length;
-            for (var index = 0; index < length; index++) {
-                var element = rawdata[index];
-                //var final = highlighter(element.v, lastValue);
-                var final = wrapInTag(element.VALUE, lastValue);
-                //wrapInTag
-                results += '<li>[' + element.INTERNALCODE + '] ' + final + '</li>';
+            var li = document.createElement('li');
+            li.appendChild(document.createTextNode(summary));
+            summaryElement.insertBefore(li, summaryElement.childNodes[0]);
+            // summaryElement.appendChild(li, summaryElement.childNodes[0]);
+
+            // var results = '';
+            var totalCount = rawdata.length;
+            if (totalCount) {
+
+                for (var index = 0; index < totalCount; index++) {
+                    var element = rawdata[index];
+                    //var final = highlighter(element.v, lastValue);
+                    var final = wrapInTag(element.VALUE, lastValue);
+                    //wrapInTag
+                    results += '<li>[' + element.INTERNALCODE + '] ' + final + '</li>';
+                }
+            } else {
+                results = '<li>No existen considencias para: <strong> ' + lastValue + '</strong></li>'
             }
             resultElement.innerHTML = results;
         },
@@ -86,10 +91,9 @@
              * @private
              */
             searchValue = function (value) {
-                //<debug>
                 sendData = new Date().getTime()
-                //</debug>
                 lastValue = value;
+
                 socket.emit(
                     findTypeElement.value,
                     {
@@ -116,22 +120,19 @@
                 replacement = '<' + tag + '>$&</' + tag + '>';
 
             return item.replace(regex, replacement);
-        };
+        },
 
-        highlighter = function (item, query) {
-            query = query || this.query;
-            query = query.replace(/[\-\[\]{}()*+?.,\\\^$|#\s]/g, '\\$&');
+            highlighter = function (item, query) {
+                query = query || this.query;
+                query = query.replace(/[\-\[\]{}()*+?.,\\\^$|#\s]/g, '\\$&');
 
-            return item.replace(new RegExp('(' + query + ')', 'ig'), function ($1, match) {
-                return '<strong>' + match + '</strong>'
-            })
-        }
+                return item.replace(new RegExp('(' + query + ')', 'ig'), function ($1, match) {
+                    return '<strong>' + match + '</strong>'
+                })
+            };
         blackboradElement.onkeyup = function () {
             var value = this.value || '';
             if (value) {
-                //<debug>
-                console.log('search', value);
-                //</debug>
                 searchValue(value);
             } else {
                 resultElement.innerHTML = '';
@@ -140,17 +141,16 @@
     }, true);
 
 </script>
-<!--<div class="blackboard" contenteditable="true"></div>-->
+
 <h1> Monitor Intellisense - Module </h1>
-<textarea id="editor" rows="12" cols="80"></textarea>
 <div class="result">
-    <ol id="hintresults"> </ol>
-</div>
-<div class="total"></div>
-<div class="configurations">
+    <textarea id="editor" rows="12" cols="80"></textarea>
+
+    <div class="total"></div>
+
     <label for="hinttype">Buscar</label>
     <select id="hinttype">
-  <option value="field">Field</option>
+  <option value="field">Diccionario</option>
   <option value="operator">Opradores</option>
   <option value="connector">Conectores</option>
 </select> <br>
@@ -161,11 +161,20 @@
   <option value="onpause">en pausa</option>
 </select> <br>
 
-    <label for="recordid">Record ID</label>
+    <label for="recordid">UUID de registro</label>
     <input type="text" id="recordid" value="0E45E63F-AA19-44E1-9DBF-DC3EB702D113">
+    <br>
 
-    <br><label> Categorias </label> <br>
-    <div class="result">
-        <ul id="categorylist"></ul>
-    </div>
+</div>
+<div class="result">
+    <label> Resultados: </label> <br>
+    <ol id="hintresults"> </ol>
+</div>
+<div class="result">
+    <label> Categorias </label> <br>
+    <ul id="categorylist"></ul>
+</div>
+<div class="result">
+    <label> Tiempo de respuesta: </label> <br>
+    <ul id="requestsummary" type="1"></ul>
 </div>
