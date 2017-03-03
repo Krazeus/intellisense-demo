@@ -198,7 +198,7 @@ io.on('connection', function (socket) {
             text = normalize(text);
             text = text.trim();
 
-            console.log("text search", text, categories);
+            console.log("searching:", text, categories);
             //quitar articulaciones
 
             var collection = mongoContext.collection(collectionName);
@@ -284,6 +284,8 @@ io.on('connection', function (socket) {
      * implementar el siguiente codigo
      */
     socket.on("operator", function (data) {
+        //  =>, <, =
+
         //<debug>
         console.log('operator', data.value);
         //</debug>
@@ -304,6 +306,8 @@ io.on('connection', function (socket) {
         }
     });
     socket.on("connector", function (data) {
+        // and, or, not
+
         //<debug>
         console.log('connector', data.value);
         //</debug>
