@@ -1,5 +1,6 @@
 ﻿--test fork
 --test fork1
+--rama1
 select * from MP_DICTIONARY
 
 
